@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  passwordHash  String
+  memberships UserOrganisationMembership[]
+  ownedOrganisations Organisation[] @relation("OrganisationOwner")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SignupRequest {
+  id String @id @default(uuid())
+  name String
+  email String @unique
+  companyName String
+  verificationToken String @unique
+  verificationTokenExpiresAt DateTime
+  otpHash String?
+  otpExpiresAt DateTime?
+  otpSentAt DateTime?
+  otpVerified Boolean @default(false)
+  otpAttempts Int @default(0)
+  emailVerified Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Organisation {
+  id String @id @default(uuid())
+  name String
+  domain String @unique
+  slug String @unique
+  ownerId String
+  owner User @relation("OrganisationOwner", fields: [ownerId], references:[id])
+  memberships UserOrganisationMembership[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum MembershipRole {
+  ADMIN
+  MEMBER
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+}
+
+model UserOrganisationMembership{
+  id String @id @default(uuid())
+  userId String 
+  orgId String
+  role MembershipRole @default(MEMBER)
+  status MembershipStatus @default(PENDING)
+  user   User   @relation(fields: [userId], references: [id])
+  organisation Organisation @relation(fields: [orgId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([userId, orgId])
+  @@index([userId])
+  @@index([orgId])
+}
