@@ -18,6 +18,8 @@ model User {
   passwordHash  String
   memberships UserOrganisationMembership[]
   ownedOrganisations Organisation[] @relation("OrganisationOwner")
+  collections Collection[] @relation("CollectionCreator")
+  uploadedDocuments Document[] @relation("UploadedDocuments")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -42,11 +44,12 @@ model SignupRequest {
 model Organisation {
   id String @id @default(uuid())
   name String
-  domain String @unique
+  domain String
   slug String @unique
   ownerId String
   owner User @relation("OrganisationOwner", fields: [ownerId], references:[id])
   memberships UserOrganisationMembership[]
+  collections Collection[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -75,4 +78,42 @@ model UserOrganisationMembership{
   @@unique([userId, orgId])
   @@index([userId])
   @@index([orgId])
+}
+
+model Collection {
+  id String @id @default(uuid())
+  name String
+  description String?
+  organisationId String
+  createdBy String
+  organisation Organisation @relation(fields:[organisationId], references:[id])
+  creator User @relation("CollectionCreator", fields:[createdBy], references:[id])
+  documents Document[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([organisationId, name])
+  @@index([organisationId])
+}
+
+
+enum DocumentStatus {
+  PROCESSING
+  READY
+  FAILED
+}
+
+model Document {
+  id String @id @default(uuid())
+  title String
+  originalName String
+  filePath String
+  mimeType String
+  fileSize Int
+  status DocumentStatus @default(PROCESSING)
+  collectionId String
+  uploadedBy String
+  collection Collection @relation(fields: [collectionId], references:[id])
+  uploader User @relation("UploadedDocuments", fields: [uploadedBy], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

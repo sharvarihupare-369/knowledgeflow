@@ -47,3 +47,35 @@ export const validationMiddleware = async (req: Request, res: Response, next: Ne
         res.status(500).json({ success: false, message: "Internal Server Error" })
     }
 }
+
+
+export const passwordValidation = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const { password } = req.body;
+
+        if (!password) {
+            res.status(400).json({ success: false, message: "Password is required." });
+            return;
+        }
+
+        if (password.length < 8) {
+            res.status(400).json({ success: false, message: "Password should be minimum 8 characters long." });
+            return;
+        }
+
+        if (!/[A-Z]/.test(password)) {
+            res.status(400).json({ success: false, message: "Password should contain at least one uppercase character." });
+            return;
+        }
+
+        if (!/[0-9]/.test(password)) {
+            res.status(400).json({ success: false, message: "Password should contain at least one number" });
+            return;
+        }
+
+        next();
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+}

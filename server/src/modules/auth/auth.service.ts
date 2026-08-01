@@ -12,12 +12,10 @@ export const createSignupRequest = async (signupRequestData: signupRequestData) 
     try {
         const user = await registerUserRepository.findUserByEmail(signupRequestData.email);
         if (user) {
-            throw new ApiError(409, "User already exists with this email!");
+            throw new ApiError(409, "User already exists with this email! Please login.");
         }
         const existsSignupRequest = await registerUserRepository.findUserBySignUpRequest(signupRequestData.email)
-        if (existsSignupRequest) {
-            throw new ApiError(409, "A verification request already exists for this email!");
-        }
+
         const token = crypto.randomUUID();
         // const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
         const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
@@ -26,7 +24,14 @@ export const createSignupRequest = async (signupRequestData: signupRequestData) 
         const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
         const otpSentAt = new Date();
         const payload = { ...signupRequestData, verificationToken: token, verificationTokenExpiresAt: expiresAt, otpHash, otpExpiresAt, otpSentAt }
-        const result = await registerUserRepository.createSignupRequest(payload);
+
+        let result;
+        if (existsSignupRequest) {
+            result = await registerUserRepository.updateSignupRequest(existsSignupRequest.id, payload);
+        } else {
+            result = await registerUserRepository.createSignupRequest(payload);
+        }
+
         const frontendUrl = process.env.FRONTEND_URL;
 
         if (!frontendUrl) {
@@ -187,13 +192,14 @@ export const createNewAccount = async (payload: createNewAccountProps) => {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const slug = slugify(
+    const baseSlug = slugify(
         existsSignupRequest.companyName,
         {
             lower: true,
             strict: true,
         }
     );
+    const slug = `${baseSlug}-${crypto.randomBytes(3).toString("hex")}`;
     const result =
         await registerUserRepository.createAccountTransaction({
             existsSignupRequest,
@@ -229,4 +235,14 @@ export const loginUser = async (payload: loginUserProps) => {
         name: existingUser.name
     }
 
+}
+
+
+export const userDetails = async (userId: string) => {
+    const existingUser = await registerUserRepository.findUserById(userId);
+    if (!existingUser) {
+        throw new ApiError(404, "User does not exist.");
+    }
+
+    return existingUser;
 }

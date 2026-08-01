@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { prisma } from "./config/prisma.js";
 import authRoutes from './modules/auth/auth.route.js';
+import collectionRoutes from './modules/collections/collection.routes.js'
+import documentRoutes from './modules/documents/document.routes.js'
 
 dotenv.config()
 const PORT = process.env.PORT || 5000;
@@ -11,6 +13,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/api/auth", authRoutes)
+app.use("/api/collections", collectionRoutes)
+app.use("/api/documents", documentRoutes)
 
 app.get("/", (req: Request, res: Response) => {
     res.send("Welcome to Base Route!")

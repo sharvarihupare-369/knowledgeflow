@@ -23,6 +23,22 @@ export const findUserByEmail = async (email: string) => {
     return query;
 }
 
+export const findUserById = async (id: string) => {
+    const query = prisma.user.findUnique({
+        where: {
+            id,
+        },
+        include: {
+            memberships: {
+                include: {
+                    organisation: true,
+                }
+            }
+        }
+    })
+    return query;
+}
+
 export const createSignupRequest = async (payload: createSignupRequestPayload) => {
     return await prisma.signupRequest.create({
         data: {
@@ -34,6 +50,24 @@ export const createSignupRequest = async (payload: createSignupRequestPayload) =
             otpHash: payload.otpHash,
             otpExpiresAt: payload.otpExpiresAt,
             otpSentAt: payload.otpSentAt,
+        }
+    })
+}
+
+export const updateSignupRequest = async (id: string, payload: createSignupRequestPayload) => {
+    return await prisma.signupRequest.update({
+        where: { id },
+        data: {
+            name: payload.name,
+            companyName: payload.company_name,
+            verificationToken: payload.verificationToken,
+            verificationTokenExpiresAt: payload.verificationTokenExpiresAt,
+            otpHash: payload.otpHash,
+            otpExpiresAt: payload.otpExpiresAt,
+            otpSentAt: payload.otpSentAt,
+            otpAttempts: 0,
+            otpVerified: false,
+            emailVerified: false,
         }
     })
 }
@@ -157,5 +191,44 @@ export const createAccountTransaction = async ({
             user,
             organisation,
         };
+    })
+}
+
+export const createMemberAccountTransaction = async ({
+    email,
+    name,
+    passwordHash,
+    orgId, // They must be tied to an existing org
+    // inviteId (if you have an invite table to clean up)
+}: {
+    email: string;
+    name: string;
+    passwordHash: string;
+    orgId: string;
+}) => {
+    return prisma.$transaction(async (tx) => {
+        // 1. Create the invited user
+        const user = await tx.user.create({
+            data: {
+                name,
+                email,
+                passwordHash,
+            }
+        });
+
+        // 2. Add them to the existing organisation as a MEMBER
+        await tx.userOrganisationMembership.create({
+            data: {
+                userId: user.id,
+                orgId: orgId,
+                role: MembershipRole.MEMBER, // Set role to MEMBER
+                status: MembershipStatus.ACTIVE,
+            }
+        });
+
+        // 3. (Optional) Delete the invite request/token here 
+        // await tx.inviteRequest.delete({ ... });
+
+        return user;
     })
 }

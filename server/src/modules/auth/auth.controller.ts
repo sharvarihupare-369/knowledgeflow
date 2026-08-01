@@ -132,3 +132,29 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     }
 }
 
+
+export const userDetails = async (req: Request, res: Response): Promise<void> => {
+    try {
+        if (!req.user) {
+            throw new ApiError(401, "Unauthorized");
+        }
+        const userId = req.user.id;
+        const result = await registerUserService.userDetails(userId);
+        res.status(200).json({
+            success: true,
+            message: "User LoggedIn Successfully.",
+            data: result
+        })
+    } catch (error) {
+        console.error(error);
+        if (error instanceof ApiError) {
+            res.status(error.statusCode).json({
+                success: false,
+                message: error.message
+            })
+            return
+        }
+        res.status(500).json({ success: false, message: "Error while creating account." })
+    }
+}
+
