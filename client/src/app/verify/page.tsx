@@ -136,7 +136,8 @@ function VerifyForm() {
     },
     onSuccess: (data) => {
       toast.success(data.message || "Verified successfully!");
-      router.push(`/create-account?email=${encodeURIComponent(email)}`);
+      // Open in a new tab
+      window.open(`/create-account?email=${encodeURIComponent(email)}`, "_blank");
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "Invalid OTP.");

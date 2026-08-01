@@ -25,23 +25,19 @@ export const createSignupRequest = async (req: Request, res: Response): Promise<
 
 export const verifyEmail = async (req: Request, res: Response): Promise<void> => {
     try {
-        // const { email } = req.body;
         const token = req.query.token as string;
         const result = await registerUserService.verifyEmail(token);
-        res.status(200).json({
-            success: true,
-            message: "Email verified successfully."
-        })
+        
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        res.redirect(`${frontendUrl}/create-account?email=${encodeURIComponent(result.email)}`);
     } catch (error: unknown) {
         console.error(error);
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        let errorMessage = "Error while verifying email";
         if (error instanceof ApiError) {
-            res.status(error.statusCode).json({
-                success: false,
-                message: error.message
-            })
-            return
+            errorMessage = error.message;
         }
-        res.status(500).json({ success: false, message: "Error while verifying email" })
+        res.redirect(`${frontendUrl}/signup?error=${encodeURIComponent(errorMessage)}`);
     }
 }
 

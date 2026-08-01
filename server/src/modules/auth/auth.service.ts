@@ -32,14 +32,10 @@ export const createSignupRequest = async (signupRequestData: signupRequestData) 
             result = await registerUserRepository.createSignupRequest(payload);
         }
 
-        const frontendUrl = process.env.FRONTEND_URL;
-
-        if (!frontendUrl) {
-            throw new Error("FRONTEND_URL is not configured");
-        };
+        const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 8080}`;
 
         const verificationLink =
-            `${frontendUrl}/api/auth/verify-email?token=${token}`;
+            `${backendUrl}/api/auth/verify-email?token=${token}`;
 
 
 
@@ -160,9 +156,8 @@ export const resendOTP = async (email: string) => {
     const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
     const otpSentAt = new Date();
 
-    const frontendUrl = process.env.FRONTEND_URL;
-    if (!frontendUrl) throw new Error("FRONTEND_URL is not configured");
-    const verificationLink = `${frontendUrl}/api/auth/verify-email?token=${existingSignupRequest.verificationToken}`;
+    const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 8080}`;
+    const verificationLink = `${backendUrl}/api/auth/verify-email?token=${existingSignupRequest.verificationToken}`;
 
     await registerUserRepository.updateSignupRequestOTP(existingSignupRequest.id, otpHash, otpExpiresAt, otpSentAt);
     await emailService.sendVerificationEmailAndOTP({
