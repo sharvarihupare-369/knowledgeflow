@@ -14,8 +14,8 @@ export const uploadDocument = async (documentData: {
     return data;
 }
 
-export const getAllDocuments = async (userId: string) => {
-    return await documentRepository.getAllDocuments(userId);
+export const getAllDocuments = async (userId: string, collectionId?: string) => {
+    return await documentRepository.getAllDocuments(userId, collectionId);
 };
 
 export const deleteDocument = async (id: string, userId: string) => {

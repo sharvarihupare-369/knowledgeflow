@@ -27,9 +27,13 @@ export const uploadDocument = async (documentData: {
     return document;
 }
 
-export const getAllDocuments = async (userId: string) => {
+export const getAllDocuments = async (userId: string, collectionId?: string) => {
+    const where: any = { uploadedBy: userId };
+    if (collectionId) {
+        where.collectionId = collectionId;
+    }
     return await prisma.document.findMany({
-        where: { uploadedBy: userId },
+        where,
         orderBy: { createdAt: 'desc' }
     });
 };

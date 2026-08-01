@@ -55,7 +55,8 @@ export const uploadDocument = async (req: Request, res: Response) => {
 export const getAllDocuments = async (req: Request, res: Response) => {
     try {
         if (!req.user) throw new ApiError(401, "Unauthorized");
-        const documents = await documentService.getAllDocuments(req.user.id);
+        const collectionId = req.query.collectionId as string | undefined;
+        const documents = await documentService.getAllDocuments(req.user.id, collectionId);
         res.status(200).json({ success: true, data: documents });
     } catch (error) {
         console.error(error);
