@@ -22,6 +22,8 @@ const storage = multer.diskStorage({
     }
 })
 
+import { ApiError } from '../validations/api-error.js';
+
 // Filter file types to only allow specific document types
 const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     const allowedMimeTypes = [
@@ -34,7 +36,7 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
     if (allowedMimeTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error('Invalid file type. Only PDF, DOCX, TXT, and MD files are allowed.'));
+        cb(new ApiError(400, 'Invalid file type. Only PDF, DOCX, TXT, and MD files are allowed.'));
     }
 };
 

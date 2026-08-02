@@ -6,6 +6,7 @@ import authRoutes from './modules/auth/auth.route.js';
 import collectionRoutes from './modules/collections/collection.routes.js'
 import documentRoutes from './modules/documents/document.routes.js'
 import chatRoutes from './modules/chat/chat.routes.js'
+import dashboardRoutes from './modules/dashboard/dashboard.routes.js'
 import { errorHandler } from "./middlewares/errorHandler.middleware.js";
 
 const PORT = env.PORT;
@@ -17,6 +18,7 @@ app.use("/api/auth", authRoutes)
 app.use("/api/collections", collectionRoutes)
 app.use("/api/documents", documentRoutes)
 app.use("/api/chat", chatRoutes)
+app.use("/api/dashboard", dashboardRoutes)
 
 app.get("/", (req: Request, res: Response) => {
     res.send("Welcome to Base Route!")

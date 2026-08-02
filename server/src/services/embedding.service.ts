@@ -13,7 +13,7 @@ export const generateEmbedding = async (text: string): Promise<number[]> => {
             model: 'nomic-embed-text',
             prompt: text,
         });
-        
+
         return response.embedding;
     } catch (error) {
         console.error("Failed to generate embedding:", error);

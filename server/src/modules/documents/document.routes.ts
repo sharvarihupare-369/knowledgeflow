@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { uploadDocument, getAllDocuments, getDocumentById, deleteDocument } from './document.controller.js'
+import { uploadDocument, getAllDocuments, getDocumentById, deleteDocument, reindexDocument } from './document.controller.js'
 import { authenticator } from "../../middlewares/authenticator.middleware.js";
 import { upload } from "../../config/multer.js";
 import { authorizeRole } from "../../middlewares/rbac.middleware.js";
@@ -12,6 +12,7 @@ router.post('/upload', authenticator, upload.single('file'), validateRequest(upl
 router.get('/', authenticator, getAllDocuments);
 router.get('/:id', authenticator, getDocumentById);
 router.delete('/:id', authenticator, authorizeRole(['ADMIN']), deleteDocument);
+router.post('/:id/reindex', authenticator, reindexDocument);
 // router.patch('/:id', editDocument);
 
 export default router;

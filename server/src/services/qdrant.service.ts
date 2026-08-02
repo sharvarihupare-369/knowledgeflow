@@ -17,7 +17,7 @@ export const saveIntoQdrant = async (collectionName: string, points: QdrantPoint
             wait: true,
             points: points
         });
-        
+
         console.log(`Successfully saved ${points.length} points to Qdrant collection: ${collectionName}`);
     } catch (error) {
         console.error("Failed to save vectors to Qdrant:", error);
@@ -34,7 +34,7 @@ export const createCollectionIfNotExists = async (collectionName: string, vector
     try {
         const { collections } = await client.getCollections();
         const exists = collections.some(c => c.name === collectionName);
-        
+
         if (!exists) {
             await client.createCollection(collectionName, {
                 vectors: {
@@ -77,10 +77,35 @@ export const searchVectors = async ({
                 ]
             }
         });
-        
+
         return searchResult;
     } catch (error) {
         console.error("Failed to search vectors in Qdrant:", error);
+        throw error;
+    }
+};
+
+/**
+ * Deletes all vectors associated with a specific documentId
+ */
+export const deleteVectorsByDocumentId = async (collectionName: string, documentId: string) => {
+    try {
+        await client.delete(collectionName, {
+            wait: true,
+            filter: {
+                must: [
+                    {
+                        key: "documentId",
+                        match: {
+                            value: documentId
+                        }
+                    }
+                ]
+            }
+        });
+        console.log(`Successfully deleted vectors for document: ${documentId}`);
+    } catch (error) {
+        console.error("Failed to delete vectors from Qdrant:", error);
         throw error;
     }
 };

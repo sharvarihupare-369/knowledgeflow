@@ -44,7 +44,7 @@ export const createSignupRequest = async (payload: createSignupRequestPayload) =
         data: {
             name: payload.name,
             email: payload.email,
-            companyName: payload.company_name,
+            companyName: payload.companyName,
             verificationToken: payload.verificationToken,
             verificationTokenExpiresAt: payload.verificationTokenExpiresAt,
             otpHash: payload.otpHash,
@@ -59,7 +59,7 @@ export const updateSignupRequest = async (id: string, payload: createSignupReque
         where: { id },
         data: {
             name: payload.name,
-            companyName: payload.company_name,
+            companyName: payload.companyName,
             verificationToken: payload.verificationToken,
             verificationTokenExpiresAt: payload.verificationTokenExpiresAt,
             otpHash: payload.otpHash,
@@ -149,7 +149,7 @@ export const createAccountTransaction = async ({
     passwordHash,
     slug,
 }: {
-    existsSignupRequest: import('@prisma/client').SignupRequest | null;
+    existsSignupRequest: import('@prisma/client').SignupRequest;
     passwordHash: string;
     slug: string;
 }) => {
@@ -167,7 +167,7 @@ export const createAccountTransaction = async ({
             data: {
                 name: existsSignupRequest.companyName,
                 slug,
-                domain: existsSignupRequest.email.split("@")[1],
+                domain: existsSignupRequest.email.split("@")[1] || "",
                 ownerId: user.id,
             }
         });

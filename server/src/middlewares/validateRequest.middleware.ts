@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import { AnySchema, ValidationError } from 'yup';
+import { type AnySchema, ValidationError } from 'yup';
 import { ApiError } from '../validations/api-error.js';
 
 export const validateRequest = (schema: AnySchema) => {
@@ -13,8 +13,8 @@ export const validateRequest = (schema: AnySchema) => {
             
             // Re-assign validated values back to request
             req.body = validated.body;
-            req.query = validated.query;
-            req.params = validated.params;
+            Object.defineProperty(req, 'query', { value: validated.query, writable: true, configurable: true });
+            Object.defineProperty(req, 'params', { value: validated.params, writable: true, configurable: true });
             
             next();
         } catch (error) {

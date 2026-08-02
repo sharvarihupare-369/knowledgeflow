@@ -10,6 +10,11 @@ export function useDocuments(collectionId?: string) {
       const { data } = await api.get(url);
       return data.data as Document[];
     },
+    // Auto-poll every 5s if any document is still PROCESSING
+    refetchInterval: (query) => {
+      const docs = query.state.data as Document[] | undefined;
+      return docs?.some((d) => d.status === 'PROCESSING') ? 5000 : false;
+    },
   });
 }
 
@@ -18,9 +23,7 @@ export function useUploadDocument() {
   return useMutation({
     mutationFn: async (formData: FormData) => {
       const { data } = await api.post('/documents/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       return data;
     },
@@ -35,6 +38,19 @@ export function useDeleteDocument() {
   return useMutation({
     mutationFn: async (id: string) => {
       const { data } = await api.delete(`/documents/${id}`);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['documents'] });
+    },
+  });
+}
+
+export function useReindexDocument() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data } = await api.post(`/documents/${id}/reindex`);
       return data;
     },
     onSuccess: () => {

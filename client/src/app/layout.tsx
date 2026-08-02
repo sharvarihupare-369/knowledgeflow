@@ -1,22 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { ReactQueryProvider } from "@/lib/react-query";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "KnowledgeFlow AI",
-  description: "Next Generation Authentication",
+  title: "KnowledgeFlow AI – Your AI Knowledge Base",
+  description: "Instantly search, cite, and chat with your company documents using AI.",
 };
 
 export default function RootLayout({
@@ -27,13 +24,28 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} h-full`}
+      suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col">
-        <ReactQueryProvider>
-          {children}
-          <Toaster position="top-center" richColors />
-        </ReactQueryProvider>
+        <ThemeProvider>
+          <ReactQueryProvider>
+            {children}
+            <Toaster
+              position="top-right"
+              richColors
+              expand={false}
+              toastOptions={{
+                style: {
+                  background: "var(--bg-surface)",
+                  border: "1px solid var(--border-default)",
+                  color: "var(--text-primary)",
+                  boxShadow: "var(--shadow-lg)",
+                },
+              }}
+            />
+          </ReactQueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -79,3 +79,12 @@ export const userDetails = asyncHandler(async (req: Request, res: Response): Pro
         data: result
     });
 });
+
+export const logoutUser = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    // In a stateless JWT setup, logout is primarily handled client-side by deleting the token.
+    // If you add a token blacklist or refresh tokens later, handle it here.
+    res.status(200).json({
+        success: true,
+        message: "User logged out successfully."
+    });
+});

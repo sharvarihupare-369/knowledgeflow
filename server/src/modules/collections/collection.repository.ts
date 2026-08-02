@@ -25,7 +25,7 @@ export const createCollection = async (userId: string, payload: createCollection
     return await prisma.collection.create({
         data: {
             name: payload.name,
-            description: payload.description,
+            ...(payload.description ? { description: payload.description } : {}),
             organisationId: membership.orgId,
             createdBy: userId,
         }
@@ -54,7 +54,7 @@ export const getCollections = async (userId: string) => {
 
 
 
-export const editCollection = async (userId: string, id: strin, payload: EditCollectionPayload) => {
+export const editCollection = async (userId: string, id: string, payload: EditCollectionPayload) => {
     const membership = await prisma.userOrganisationMembership.findFirst({
         where: {
             userId
@@ -78,8 +78,8 @@ export const editCollection = async (userId: string, id: strin, payload: EditCol
             id
         },
         data: {
-            name: payload.name,
-            description: payload.description
+            ...(payload.name ? { name: payload.name } : {}),
+            ...(payload.description ? { description: payload.description } : {})
         }
     })
 }

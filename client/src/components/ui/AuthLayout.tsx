@@ -24,19 +24,18 @@ export function AuthLayout({
             <Sparkles className="h-5 w-5" />
           </div>
           <span className="text-xl font-semibold tracking-tight">
-            KnowledgeFlow
+            KnowledgeFlow AI
           </span>
         </div>
 
         <div>
           <blockquote className="text-3xl leading-snug font-medium">
-            "This platform gave our team the clarity we needed to ship faster
-            and with more confidence."
+            "KnowledgeFlow transformed how we interact with our documents. Finding precise answers now takes seconds, not hours."
           </blockquote>
           <div className="mt-6">
-            <div className="font-semibold">Amelia Chen</div>
+            <div className="font-semibold">Sharvari Hupare</div>
             <div className="text-sm text-gray-400">
-              Head of Product, Lumen Labs
+              Founder & Software Engineer
             </div>
           </div>
         </div>

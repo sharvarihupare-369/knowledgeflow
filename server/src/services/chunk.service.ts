@@ -1,20 +1,36 @@
+import type { PdfPage } from './pdf-parser.service.js';
+
+export interface ChunkResult {
+    content: string;
+    page: number;
+}
+
 export const splitIntoChunks = (
-    text: string,
+    pages: PdfPage[],
     chunkSize = 1000,
     overlap = 200
-): string[] => {
+): ChunkResult[] => {
     if (overlap >= chunkSize) {
         throw new Error("Overlap must be smaller than chunk size.");
     }
-    const chunks: string[] = [];
-    let start = 0;
-    while (start < text.length) {
-        const end = start + chunkSize;
-        const chunk = text.slice(start, end).trim();
-        if (chunk) {
-            chunks.push(chunk);
+    const chunks: ChunkResult[] = [];
+    
+    for (const page of pages) {
+        let start = 0;
+        const text = page.text;
+        
+        while (start < text.length) {
+            const end = start + chunkSize;
+            const chunkText = text.slice(start, end).trim();
+            if (chunkText) {
+                chunks.push({
+                    content: chunkText,
+                    page: page.page
+                });
+            }
+            start += chunkSize - overlap;
         }
-        start += chunkSize - overlap;
     }
+    
     return chunks;
 };

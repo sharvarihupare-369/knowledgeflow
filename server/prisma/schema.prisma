@@ -5,6 +5,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
 }
 
 datasource db {
@@ -12,46 +13,47 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  passwordHash  String
-  memberships UserOrganisationMembership[]
-  ownedOrganisations Organisation[] @relation("OrganisationOwner")
-  collections Collection[] @relation("CollectionCreator")
-  uploadedDocuments Document[] @relation("UploadedDocuments")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 String                       @id @default(uuid())
+  name               String
+  email              String                       @unique
+  passwordHash       String
+  memberships        UserOrganisationMembership[]
+  ownedOrganisations Organisation[]               @relation("OrganisationOwner")
+  collections        Collection[]                 @relation("CollectionCreator")
+  uploadedDocuments  Document[]                   @relation("UploadedDocuments")
+  conversations      Conversation[]
+  createdAt          DateTime                     @default(now())
+  updatedAt          DateTime                     @updatedAt
 }
 
 model SignupRequest {
-  id String @id @default(uuid())
-  name String
-  email String @unique
-  companyName String
-  verificationToken String @unique
+  id                         String    @id @default(uuid())
+  name                       String
+  email                      String    @unique
+  companyName                String
+  verificationToken          String    @unique
   verificationTokenExpiresAt DateTime
-  otpHash String?
-  otpExpiresAt DateTime?
-  otpSentAt DateTime?
-  otpVerified Boolean @default(false)
-  otpAttempts Int @default(0)
-  emailVerified Boolean @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  otpHash                    String?
+  otpExpiresAt               DateTime?
+  otpSentAt                  DateTime?
+  otpVerified                Boolean   @default(false)
+  otpAttempts                Int       @default(0)
+  emailVerified              Boolean   @default(false)
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
 }
 
 model Organisation {
-  id String @id @default(uuid())
-  name String
-  domain String
-  slug String @unique
-  ownerId String
-  owner User @relation("OrganisationOwner", fields: [ownerId], references:[id])
+  id          String                       @id @default(uuid())
+  name        String
+  domain      String
+  slug        String                       @unique
+  ownerId     String
+  owner       User                         @relation("OrganisationOwner", fields: [ownerId], references: [id])
   memberships UserOrganisationMembership[]
   collections Collection[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime                     @default(now())
+  updatedAt   DateTime                     @updatedAt
 }
 
 enum MembershipRole {
@@ -65,36 +67,38 @@ enum MembershipStatus {
   PENDING
 }
 
-model UserOrganisationMembership{
-  id String @id @default(uuid())
-  userId String 
-  orgId String
-  role MembershipRole @default(MEMBER)
-  status MembershipStatus @default(PENDING)
-  user   User   @relation(fields: [userId], references: [id])
-  organisation Organisation @relation(fields: [orgId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model UserOrganisationMembership {
+  id           String           @id @default(uuid())
+  userId       String
+  orgId        String
+  role         MembershipRole   @default(MEMBER)
+  status       MembershipStatus @default(PENDING)
+  user         User             @relation(fields: [userId], references: [id])
+  organisation Organisation     @relation(fields: [orgId], references: [id])
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
   @@unique([userId, orgId])
   @@index([userId])
   @@index([orgId])
 }
 
 model Collection {
-  id String @id @default(uuid())
-  name String
-  description String?
+  id             String         @id @default(uuid())
+  name           String
+  description    String?
   organisationId String
-  createdBy String
-  organisation Organisation @relation(fields:[organisationId], references:[id])
-  creator User @relation("CollectionCreator", fields:[createdBy], references:[id])
-  documents Document[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdBy      String
+  organisation   Organisation   @relation(fields: [organisationId], references: [id])
+  creator        User           @relation("CollectionCreator", fields: [createdBy], references: [id])
+  documents      Document[]
+  conversations  Conversation[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
   @@unique([organisationId, name])
   @@index([organisationId])
 }
-
 
 enum DocumentStatus {
   PROCESSING
@@ -103,28 +107,57 @@ enum DocumentStatus {
 }
 
 model Document {
-  id String @id @default(uuid())
-  title String
+  id           String         @id @default(uuid())
+  title        String
   originalName String
-  filePath String
-  mimeType String
-  fileSize Int
-  status DocumentStatus @default(PROCESSING)
+  filePath     String
+  mimeType     String
+  fileSize     Int
+  status       DocumentStatus @default(PROCESSING)
   collectionId String
-  uploadedBy String
-  collection Collection @relation(fields: [collectionId], references:[id])
-  uploader User @relation("UploadedDocuments", fields: [uploadedBy], references: [id])
-  chunks Chunk[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  uploadedBy   String
+  collection   Collection     @relation(fields: [collectionId], references: [id])
+  uploader     User           @relation("UploadedDocuments", fields: [uploadedBy], references: [id])
+  chunks       Chunk[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }
 
 model Chunk {
-  id String  @id @default(uuid())
+  id         String   @id @default(uuid())
   documentId String
-  content String
+  content    String
   chunkIndex Int
-  document Document @relation(fields: [documentId], references: [id])
-  createdAt DateTime @default(now())
+  page       Int?
+  document   Document @relation(fields: [documentId], references: [id])
+  createdAt  DateTime @default(now())
+
   @@index([documentId])
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+
+model Conversation {
+  id           String     @id @default(uuid())
+  title        String
+  collectionId String
+  userId       String
+  collection   Collection @relation(fields: [collectionId], references: [id])
+  user         User       @relation(fields: [userId], references: [id])
+  messages     Message[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  role           MessageRole
+  content        String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  createdAt      DateTime     @default(now())
 }

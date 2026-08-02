@@ -1,44 +1,159 @@
 "use client";
 
-import { Bell, Search } from "lucide-react";
+import { Bell, Search, Sun, Moon } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 import { useUser } from "@/hooks/useUser";
 import { getInitials } from "@/lib/formatters";
+import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
+
+const pageTitles: Record<string, string> = {
+  "/workspace":             "Dashboard",
+  "/workspace/collections": "Collections",
+  "/workspace/documents":   "Documents",
+  "/workspace/chat":        "AI Chat",
+  "/workspace/search":      "Search",
+  "/workspace/settings":    "Settings",
+};
 
 export function Header() {
   const pathname = usePathname();
   const { data: user } = useUser();
-  let title = "Dashboard";
-  
-  if (pathname.includes("/collections")) title = "Collections";
-  else if (pathname.includes("/documents")) title = "Documents";
-  
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
+      }
+    };
+    if (isProfileOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isProfileOpen]);
+
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout");
+      localStorage.removeItem("token");
+      router.push("/login");
+      toast.success("Logged out successfully");
+    } catch (error) {
+      localStorage.removeItem("token");
+      router.push("/login");
+    }
+  };
+
+  // Resolve current page title
+  const title =
+    Object.entries(pageTitles)
+      .reverse()
+      .find(([key]) => pathname.startsWith(key))?.[1] ?? "Workspace";
+
   return (
-    <header className="flex h-16 items-center justify-between border-b border-zinc-200 bg-white px-6">
-      <div className="flex items-center space-x-4">
-        <div className="flex items-center text-zinc-500">
-           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-3 h-5 w-5"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="9" x2="9" y1="3" y2="21"/></svg>
-           <h1 className="text-lg font-semibold text-zinc-900">{title}</h1>
-        </div>
+    <header
+      className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[var(--border-subtle)] px-6"
+      style={{
+        background: "var(--sidebar-bg)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+      }}
+    >
+      {/* Left: page title */}
+      <div className="flex items-center gap-3">
+        <div className="h-4 w-px bg-[var(--border-default)] hidden sm:block" />
+        <h1 className="text-[15px] font-semibold text-[var(--text-primary)]">{title}</h1>
       </div>
-      
-      <div className="flex flex-1 items-center justify-center px-6">
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-          <input 
-            type="text" 
-            placeholder="Search documents, collections..." 
-            className="h-10 w-full rounded-full border border-zinc-200 bg-zinc-50 pl-10 pr-4 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+
+      {/* Center: search */}
+      <div className="hidden md:flex flex-1 max-w-sm mx-8">
+        <label className="relative w-full group">
+          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--text-tertiary)] transition-colors group-focus-within:text-indigo-500" />
+          <input
+            type="text"
+            placeholder="Search documents, collections…"
+            className="h-9 w-full rounded-full border border-[var(--border-default)] bg-[var(--bg-surface-2)] pl-9 pr-4 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none transition-all focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15"
           />
-        </div>
+        </label>
       </div>
-      
-      <div className="flex items-center space-x-4">
-        <button className="text-zinc-500 hover:text-zinc-900">
-          <Bell className="h-5 w-5" />
+
+      {/* Right: controls */}
+      <div className="flex items-center gap-2">
+        {/* Theme toggle */}
+        {mounted && (
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface-2)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] transition-all"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
+          </button>
+        )}
+
+        {/* Notifications */}
+        <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface-2)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] transition-all relative">
+          <Bell className="h-4 w-4" />
+          <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-indigo-500" />
         </button>
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-700">
-          {user ? getInitials(user.name) : "U"}
+
+        {/* Avatar with Dropdown */}
+        <div className="relative" ref={profileRef}>
+          <div 
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-400 to-violet-500 text-xs font-semibold text-white shadow-sm cursor-pointer hover:shadow-md transition-all ring-2 ring-transparent hover:ring-indigo-500/20"
+          >
+            {user ? getInitials(user.name) : "U"}
+          </div>
+
+          {isProfileOpen && (
+            <div className="absolute right-0 top-full mt-2 w-56 rounded-xl bg-white dark:bg-[#1C212B] shadow-lg ring-1 ring-black/5 dark:ring-white/10 overflow-hidden transform opacity-100 scale-100 transition-all origin-top-right">
+              {/* User Info Header */}
+              <div className="px-4 py-3 border-b border-zinc-100 dark:border-white/5">
+                <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">
+                  {user?.name || "Loading..."}
+                </p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate mt-0.5">
+                  {user?.email || ""}
+                </p>
+              </div>
+
+              {/* Menu Items */}
+              <div className="py-1">
+                <button 
+                  onClick={() => {
+                    setIsProfileOpen(false);
+                    router.push("/workspace/settings");
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors"
+                >
+                  Settings
+                </button>
+                <div className="h-px bg-zinc-100 dark:bg-white/5 my-1" />
+                <button 
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors"
+                >
+                  Sign out
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </header>

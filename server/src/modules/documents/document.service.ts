@@ -1,6 +1,9 @@
 import fs from 'fs/promises';
 import * as documentRepository from './document.repository.js'
+import { deleteVectorsByDocumentId } from '../../services/qdrant.service.js';
 import { DocumentStatus } from "@prisma/client";
+
+import type { ChunkResult } from '../../services/chunk.service.js';
 
 export const uploadDocument = async (documentData: {
     title: string;
@@ -10,7 +13,7 @@ export const uploadDocument = async (documentData: {
     fileSize: number;
     collectionId: string;
     uploadedBy: string;
-}, chunks: string[] = []) => {
+}, chunks: ChunkResult[] = []) => {
     const data = await documentRepository.uploadDocument(documentData, chunks)
     return data;
 }
@@ -20,7 +23,18 @@ export const getAllDocuments = async (userId: string, collectionId?: string) => 
 };
 
 export const deleteDocument = async (id: string, userId: string) => {
-    const document = await documentRepository.deleteDocument(id, userId);
+    // 1. Fetch to verify it exists and belongs to the user
+    const document = await documentRepository.getDocumentById(id, userId);
+
+    // 2. Delete Qdrant vectors
+    try {
+        await deleteVectorsByDocumentId("documents", document.id);
+    } catch (error) {
+        console.error(`Failed to delete Qdrant vectors for ${document.id}`, error);
+    }
+
+    // 3. Delete chunks and document from PostgreSQL
+    await documentRepository.deleteDocument(id, userId);
     
     // Attempt to delete the physical file from the filesystem
     try {

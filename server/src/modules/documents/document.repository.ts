@@ -10,7 +10,7 @@ export const uploadDocument = async (documentData: {
     fileSize: number;
     collectionId: string;
     uploadedBy: string;
-}, chunks: string[] = []) => {
+}, chunks: { content: string, page: number }[] = []) => {
     const existingDocument = await prisma.document.findFirst({
         where: {
             collectionId: documentData.collectionId,
@@ -25,12 +25,15 @@ export const uploadDocument = async (documentData: {
     const document = await prisma.document.create({
         data: {
             ...documentData,
-            chunks: chunks.length > 0 ? {
-                create: chunks.map((content, index) => ({
-                    chunkIndex: index,
-                    content
-                }))
-            } : undefined
+            ...(chunks.length > 0 ? {
+                chunks: {
+                    create: chunks.map((chunk, index) => ({
+                        chunkIndex: index,
+                        content: chunk.content,
+                        page: chunk.page
+                    }))
+                }
+            } : {})
         },
         include: {
             chunks: true
@@ -80,9 +83,14 @@ export const deleteDocument = async (id: string, userId: string) => {
     }
 
     // 2. Delete the record from the database
-    await prisma.document.delete({
-        where: { id }
-    });
+    await prisma.$transaction([
+        prisma.chunk.deleteMany({
+            where: { documentId: id }
+        }),
+        prisma.document.delete({
+            where: { id }
+        })
+    ]);
 
     return document;
 };

@@ -59,21 +59,21 @@ export default function CollectionDetailsPage() {
     <div className="mx-auto max-w-6xl space-y-8">
       {/* Header */}
       <div>
-        <Link href="/workspace/collections" className="mb-4 inline-flex items-center text-sm text-zinc-500 hover:text-zinc-900">
+        <Link href="/workspace/collections" className="mb-4 inline-flex items-center text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
           <ChevronLeft className="mr-1 h-4 w-4" /> Collections
         </Link>
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-zinc-900">{collection.name}</h1>
-            <p className="mt-2 text-sm text-zinc-500">
+            <h1 className="text-3xl font-bold tracking-tight text-[var(--text-primary)]">{collection.name}</h1>
+            <p className="mt-2 text-sm text-[var(--text-secondary)]">
               {collection.description || "No description provided."} • {documents.length} documents
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Button onClick={() => setIsUploadModalOpen(true)} className="bg-blue-600 text-white hover:bg-blue-700">
+            <Button onClick={() => setIsUploadModalOpen(true)} className="bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm shadow-indigo-500/20 rounded-[10px]">
               <Upload className="mr-2 h-4 w-4" /> Upload Document
             </Button>
-            <Button onClick={handleDeleteCollection} isLoading={isDeletingCollection} className="bg-white text-red-600 border border-red-200 hover:bg-red-50">
+            <Button onClick={handleDeleteCollection} isLoading={isDeletingCollection} className="bg-transparent border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-[10px]">
               <Trash2 className="mr-2 h-4 w-4" /> Delete Collection
             </Button>
           </div>
