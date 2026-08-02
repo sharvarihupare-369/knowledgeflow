@@ -49,22 +49,6 @@ src/
 
 ---
 
-## Environment Variables
-
-Create a `.env` file in the `server` directory and add the following values:
-
-```env
-PORT=8080
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_app_password
-FRONTEND_URL=http://localhost:3000
-APP_NAME=KnowledgeFlow AI
-SECRET_KEY=your_secret_key
-QDRANT_URL=http://localhost:6333
-DATABASE_URL=postgresql://user:password@localhost:5432/knowledgeflow
-```
-
----
 
 ## Installation & Setup
 
