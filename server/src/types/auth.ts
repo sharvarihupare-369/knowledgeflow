@@ -1,13 +1,13 @@
 export interface signupRequestData {
     name: string;
     email: string;
-    company_name: string;
+    companyName: string;
 }
 
 export interface createSignupRequestPayload {
     name: string;
     email: string;
-    company_name: string;
+    companyName: string;
     verificationToken: string;
     verificationTokenExpiresAt: Date;
     otpHash: string;

@@ -149,7 +149,7 @@ export const createAccountTransaction = async ({
     passwordHash,
     slug,
 }: {
-    existsSignupRequest: any;
+    existsSignupRequest: import('@prisma/client').SignupRequest | null;
     passwordHash: string;
     slug: string;
 }) => {

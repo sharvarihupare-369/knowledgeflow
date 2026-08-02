@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import * as documentRepository from './document.repository.js'
+import { DocumentStatus } from "@prisma/client";
 
 export const uploadDocument = async (documentData: {
     title: string;
@@ -9,8 +10,8 @@ export const uploadDocument = async (documentData: {
     fileSize: number;
     collectionId: string;
     uploadedBy: string;
-}) => {
-    const data = await documentRepository.uploadDocument(documentData)
+}, chunks: string[] = []) => {
+    const data = await documentRepository.uploadDocument(documentData, chunks)
     return data;
 }
 
@@ -33,4 +34,8 @@ export const deleteDocument = async (id: string, userId: string) => {
 };
 export const getDocumentById = async (id: string, userId: string) => {
     return await documentRepository.getDocumentById(id, userId);
+};
+
+export const updateDocumentStatus = async (id: string, status: DocumentStatus) => {
+    return await documentRepository.updateDocumentStatus(id, status);
 };

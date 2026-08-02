@@ -1,4 +1,5 @@
 import type { createNewAccountProps, loginUserProps, signupRequestData, verifyOTPProps } from "../../types/auth.js";
+import { env } from "../../config/env.js";
 import { ApiError } from "../../validations/api-error.js";
 import * as registerUserRepository from './auth.repository.js'
 import * as emailService from '../../services/email.service.js'
@@ -32,7 +33,7 @@ export const createSignupRequest = async (signupRequestData: signupRequestData) 
             result = await registerUserRepository.createSignupRequest(payload);
         }
 
-        const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 8080}`;
+        const backendUrl = env.BACKEND_URL || `http://localhost:${env.PORT}`;
 
         const verificationLink =
             `${backendUrl}/api/auth/verify-email?token=${token}`;
@@ -156,7 +157,7 @@ export const resendOTP = async (email: string) => {
     const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
     const otpSentAt = new Date();
 
-    const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 8080}`;
+    const backendUrl = env.BACKEND_URL || `http://localhost:${env.PORT}`;
     const verificationLink = `${backendUrl}/api/auth/verify-email?token=${existingSignupRequest.verificationToken}`;
 
     await registerUserRepository.updateSignupRequestOTP(existingSignupRequest.id, otpHash, otpExpiresAt, otpSentAt);
@@ -223,7 +224,7 @@ export const loginUser = async (payload: loginUserProps) => {
         throw new ApiError(400, "Invalid Credentials!")
     }
 
-    const token = await jwt.sign({ id: existingUser.id, email: existingUser.email }, process.env.SECRET_KEY as string, { expiresIn: '1d' });
+    const token = await jwt.sign({ id: existingUser.id, email: existingUser.email }, env.SECRET_KEY, { expiresIn: '1d' });
     return {
         token,
         email: existingUser.email,

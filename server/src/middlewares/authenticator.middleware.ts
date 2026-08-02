@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt from 'jsonwebtoken';
+import { env } from '../config/env.js';
 
 export const authenticator = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -18,7 +19,7 @@ export const authenticator = async (req: Request, res: Response, next: NextFunct
         }
 
         const token = authHeader.split(" ")[1];
-        const decoded = jwt.verify(token as string, process.env.SECRET_KEY!) as unknown as {
+        const decoded = jwt.verify(token as string, env.SECRET_KEY) as unknown as {
             id: string;
             email: string;
         };

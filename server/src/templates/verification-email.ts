@@ -1,4 +1,5 @@
 import type { VerificationEmailTemplateProps } from "../types/auth.js";
+import { env } from "../config/env.js";
 
 export const verificationEmailTemplate = ({
     name,
@@ -50,7 +51,7 @@ export const verificationEmailTemplate = ({
                         color:#2563eb;
                       "
                     >
-                      ${process.env.APP_NAME}
+                      ${env.APP_NAME}
                     </h1>
 
                     <p style="margin-top:30px;">

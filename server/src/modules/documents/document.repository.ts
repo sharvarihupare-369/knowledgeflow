@@ -1,5 +1,6 @@
 import { prisma } from "../../config/prisma.js";
 import { ApiError } from "../../validations/api-error.js";
+import { DocumentStatus, Prisma } from "@prisma/client";
 
 export const uploadDocument = async (documentData: {
     title: string;
@@ -9,7 +10,7 @@ export const uploadDocument = async (documentData: {
     fileSize: number;
     collectionId: string;
     uploadedBy: string;
-}) => {
+}, chunks: string[] = []) => {
     const existingDocument = await prisma.document.findFirst({
         where: {
             collectionId: documentData.collectionId,
@@ -22,13 +23,31 @@ export const uploadDocument = async (documentData: {
     }
 
     const document = await prisma.document.create({
-        data: documentData
+        data: {
+            ...documentData,
+            chunks: chunks.length > 0 ? {
+                create: chunks.map((content, index) => ({
+                    chunkIndex: index,
+                    content
+                }))
+            } : undefined
+        },
+        include: {
+            chunks: true
+        }
     });
     return document;
 }
 
+export const updateDocumentStatus = async (documentId: string, status: DocumentStatus) => {
+    return prisma.document.update({
+        where: { id: documentId },
+        data: { status }
+    });
+};
+
 export const getAllDocuments = async (userId: string, collectionId?: string) => {
-    const where: any = { uploadedBy: userId };
+    const where: Prisma.DocumentWhereInput = { uploadedBy: userId };
     if (collectionId) {
         where.collectionId = collectionId;
     }
@@ -42,11 +61,11 @@ export const getDocumentById = async (id: string, userId: string) => {
     const document = await prisma.document.findFirst({
         where: { id, uploadedBy: userId }
     });
-    
+
     if (!document) {
         throw new ApiError(404, "Document not found");
     }
-    
+
     return document;
 };
 
@@ -55,15 +74,15 @@ export const deleteDocument = async (id: string, userId: string) => {
     const document = await prisma.document.findFirst({
         where: { id, uploadedBy: userId }
     });
-    
+
     if (!document) {
         throw new ApiError(404, "Document not found");
     }
-    
+
     // 2. Delete the record from the database
     await prisma.document.delete({
         where: { id }
     });
-    
+
     return document;
 };

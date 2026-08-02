@@ -1,3 +1,4 @@
+import { env } from "../config/env.js";
 import { transporter } from "../config/mail.js";
 import { otpEmailTemplate } from "../templates/otp-email.js";
 import { verificationEmailTemplate } from "../templates/verification-email.js";
@@ -8,7 +9,7 @@ import type { SendOtpAndVerifyLinkEmailPayload, SendOtpEmailPayload, sendVerific
 export const sendVerificationEmail = async ({ email, name, verificationLink }: sendVerificationEmailInterface) => {
     const html = verificationEmailTemplate({ name, verificationLink })
     const info = await transporter.sendMail({
-        from: process.env.EMAIL_USER,
+        from: env.EMAIL_USER,
         to: email,
         subject: "Verify your email",
         html
@@ -21,7 +22,7 @@ export const sendVerificationEmail = async ({ email, name, verificationLink }: s
 export const sendOtpEmail = async ({ email, name, otp }: SendOtpEmailPayload) => {
     const html = otpEmailTemplate({ name, otp })
     const info = await transporter.sendMail({
-        from: process.env.EMAIL_USER,
+        from: env.EMAIL_USER,
         to: email,
         subject: "Your Verification Code",
         html
@@ -34,7 +35,7 @@ export const sendOtpEmail = async ({ email, name, otp }: SendOtpEmailPayload) =>
 export const sendVerificationEmailAndOTP = async ({ email, name, verificationLink, otp }: SendOtpAndVerifyLinkEmailPayload) => {
     const html = verifylinkAndOTPTemplate({ name, verificationLink, otp });
     const info = await transporter.sendMail({
-        from: process.env.EMAIL_USER,
+        from: env.EMAIL_USER,
         to: email,
         subject: "Verify your email",
         html
