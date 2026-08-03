@@ -46,6 +46,11 @@ export const getCollections = async (userId: string) => {
         where: {
             organisationId: membership.orgId,
         },
+        include: {
+            _count: {
+                select: { documents: true }
+            }
+        },
         orderBy: {
             createdAt: "desc",
         },

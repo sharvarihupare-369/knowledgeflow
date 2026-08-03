@@ -240,5 +240,15 @@ export const userDetails = async (userId: string) => {
         throw new ApiError(404, "User does not exist.");
     }
 
-    return existingUser;
+    const membership = existingUser.memberships?.[0];
+
+    return {
+        id: existingUser.id,
+        name: existingUser.name,
+        email: existingUser.email,
+        companyName: membership?.organisation?.name,
+        role: membership?.role,
+        createdAt: existingUser.createdAt,
+        updatedAt: existingUser.updatedAt,
+    };
 }

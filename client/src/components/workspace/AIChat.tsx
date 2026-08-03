@@ -75,12 +75,16 @@ export function AIChat() {
   // Load history messages when activeConversationId changes
   useEffect(() => {
     if (activeConversationId && historyMessages && historyMessages.length > 0) {
-      setMessages(historyMessages);
-      setSources(prev => prev.length === 0 ? prev : []); // Clear sources from previous questions
+      // Do not overwrite the local messages array if we are currently streaming a new response
+      if (!isLoading) {
+        setMessages(historyMessages);
+        setSources(prev => prev.length === 0 ? prev : []); // Clear sources from previous questions
+      }
     } else if (activeConversationId === null) {
       setMessages(prev => prev.length === 0 ? prev : []);
       setSources(prev => prev.length === 0 ? prev : []);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeConversationId, historyMessages]);
 
   useEffect(() => {

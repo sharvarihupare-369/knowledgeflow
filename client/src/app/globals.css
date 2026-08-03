@@ -169,11 +169,7 @@ body {
   color: var(--brand-500);
 }
 
-/* Focus ring */
-:focus-visible {
-  outline: 2px solid var(--brand-500);
-  outline-offset: 2px;
-}
+
 
 /* Page transition wrapper */
 .page-enter { opacity: 0; transform: translateY(8px); }
