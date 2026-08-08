@@ -10,7 +10,7 @@ const envSchema = yup.object({
   FRONTEND_URL: yup
     .string()
     .matches(/^https?:\/\//, 'Must be a valid URL')
-    .default('http://localhost:3000'),
+    .default('https://knowledgeflow-ai-one.vercel.app'),
   APP_NAME: yup.string().default('KnowledgeFlow AI'),
   SECRET_KEY: yup.string().required('SECRET_KEY is required'),
   QDRANT_URL: yup
