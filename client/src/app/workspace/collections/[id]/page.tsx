@@ -73,9 +73,11 @@ export default function CollectionDetailsPage() {
             <Button onClick={() => setIsUploadModalOpen(true)} className="bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm shadow-indigo-500/20 rounded-[10px]">
               <Upload className="mr-2 h-4 w-4" /> Upload Document
             </Button>
-            <Button onClick={handleDeleteCollection} isLoading={isDeletingCollection} className="bg-transparent border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-[10px]">
-              <Trash2 className="mr-2 h-4 w-4" /> Delete Collection
-            </Button>
+            {user?.role === 'ADMIN' && (
+              <Button onClick={handleDeleteCollection} isLoading={isDeletingCollection} className="bg-transparent border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-[10px]">
+                <Trash2 className="mr-2 h-4 w-4" /> Delete Collection
+              </Button>
+            )}
           </div>
         </div>
       </div>

@@ -109,3 +109,32 @@ export const deleteVectorsByDocumentId = async (collectionName: string, document
     throw error;
   }
 };
+
+/**
+ * Deletes all vectors associated with a specific collectionId
+ */
+export const deleteVectorsByCollectionId = async (collectionName: string, collectionId: string) => {
+  try {
+    await client.delete(collectionName, {
+      wait: true,
+      filter: {
+        must: [
+          {
+            key: 'collectionId',
+            match: {
+              value: collectionId,
+            },
+          },
+        ],
+      },
+    });
+    console.log(`Successfully deleted vectors for collection: ${collectionId}`);
+  } catch (error: any) {
+    if (error.status === 404 || (error.message && error.message.includes('Not found'))) {
+      console.warn(`Qdrant collection "documents" not found during delete. Ignoring.`);
+      return;
+    }
+    console.error('Failed to delete vectors for collectionId from Qdrant:', error);
+    throw error;
+  }
+};

@@ -116,9 +116,35 @@ export const deleteCollection = async (userId: string, id: string) => {
     throw new ApiError(404, 'Collection not found.');
   }
 
-  return await prisma.collection.delete({
-    where: {
-      id,
-    },
+  return await prisma.$transaction(async (tx) => {
+    // Delete chunks associated with documents in this collection
+    const documents = await tx.document.findMany({ where: { collectionId: id } });
+    const documentIds = documents.map(d => d.id);
+    if (documentIds.length > 0) {
+      await tx.chunk.deleteMany({
+        where: { documentId: { in: documentIds } },
+      });
+      await tx.document.deleteMany({
+        where: { collectionId: id },
+      });
+    }
+
+    // Delete messages associated with conversations in this collection
+    const conversations = await tx.conversation.findMany({ where: { collectionId: id } });
+    const conversationIds = conversations.map(c => c.id);
+    if (conversationIds.length > 0) {
+      await tx.message.deleteMany({
+        where: { conversationId: { in: conversationIds } },
+      });
+      await tx.conversation.deleteMany({
+        where: { collectionId: id },
+      });
+    }
+
+    return await tx.collection.delete({
+      where: {
+        id,
+      },
+    });
   });
 };

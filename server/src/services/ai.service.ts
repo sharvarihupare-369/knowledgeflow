@@ -2,7 +2,7 @@ import ollama from 'ollama';
 import OpenAI from 'openai';
 
 let openaiInstance: OpenAI | null = null;
-const getOpenAI = () => {
+export const getOpenAI = () => {
   if (!openaiInstance) {
     openaiInstance = new OpenAI({
       apiKey: process.env.NVDIA_API_KEY || 'dummy_to_prevent_crash',

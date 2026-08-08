@@ -1,5 +1,6 @@
 import type { createCollectionPayload, EditCollectionPayload } from '../../types/collections.js';
 import * as collectionRepository from './collection.repository.js';
+import { deleteVectorsByCollectionId } from '../../services/qdrant.service.js';
 
 export const createCollection = async (userId: string, payload: createCollectionPayload) => {
   const data = await collectionRepository.createCollection(userId, payload);
@@ -15,5 +16,10 @@ export const editCollection = async (userId: string, id: string, payload: EditCo
 };
 
 export const deleteCollection = async (userId: string, id: string) => {
-  return await collectionRepository.deleteCollection(userId, id);
+  const deleted = await collectionRepository.deleteCollection(userId, id);
+  // Cleanup vectors in Qdrant async (fire and forget or await)
+  await deleteVectorsByCollectionId('documents', id).catch(err => {
+    console.error('Failed to cleanup qdrant vectors for collection', id, err);
+  });
+  return deleted;
 };

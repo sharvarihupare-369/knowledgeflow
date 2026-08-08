@@ -22,6 +22,8 @@ const envSchema = yup.object({
     .string()
     .matches(/^https?:\/\//, 'Must be a valid URL')
     .optional(),
+  QDRANT_API_KEY: yup.string().optional(),
+  NVDIA_API_KEY: yup.string().optional(),
 });
 
 export const env = envSchema.validateSync(process.env, { abortEarly: false, stripUnknown: true });
