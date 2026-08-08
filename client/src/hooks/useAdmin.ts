@@ -87,6 +87,7 @@ export interface Invite {
   expiresAt: string;
   createdAt: string;
   updatedAt: string;
+  collectionIds?: string[];
   inviter?: {
     id: string;
     name: string;
