@@ -20,20 +20,25 @@ export default function SearchPage() {
   const [query, setQuery] = useState("");
   const [submittedQuery, setSubmittedQuery] = useState("");
 
-  const { data: results = [], isLoading, isFetching } = useQuery({
-    queryKey: ['search-documents', submittedQuery],
+  const { data: allDocuments = [], isLoading, isFetching } = useQuery({
+    queryKey: ['search-documents'],
     queryFn: async () => {
-      if (!submittedQuery.trim()) return [];
-      const { data } = await api.get(`/documents?search=${encodeURIComponent(submittedQuery)}`);
+      const { data } = await api.get(`/documents`);
       return data.data as Document[];
-    },
-    enabled: !!submittedQuery,
+    }
   });
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmittedQuery(query);
   };
+
+  const results = allDocuments.filter(doc => 
+    submittedQuery 
+      ? doc.title.toLowerCase().includes(submittedQuery.toLowerCase()) || 
+        doc.originalName.toLowerCase().includes(submittedQuery.toLowerCase())
+      : true
+  );
 
   return (
     <motion.div
@@ -67,13 +72,18 @@ export default function SearchPage() {
           <input
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by title or content..."
+            onChange={(e) => {
+              setQuery(e.target.value);
+              if (e.target.value === "") {
+                setSubmittedQuery("");
+              }
+            }}
+            placeholder="Search by title..."
             className="w-full bg-transparent pl-12 pr-4 py-3 text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none"
           />
           <button
             type="submit"
-            disabled={!query.trim() || isFetching}
+            disabled={isFetching}
             className="flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isFetching ? <Loader2 className="h-4 w-4 animate-spin" /> : "Search"}
@@ -89,11 +99,13 @@ export default function SearchPage() {
                 <div key={i} className="skeleton h-[130px] rounded-[16px] w-full" />
              ))}
           </div>
-        ) : submittedQuery ? (
+        ) : (
            <div>
-              <p className="mb-6 text-sm text-[var(--text-secondary)]">
-                 Found {results.length} result{results.length !== 1 ? 's' : ''} for "{submittedQuery}"
-              </p>
+              {submittedQuery && (
+                <p className="mb-6 text-sm text-[var(--text-secondary)]">
+                   Found {results.length} result{results.length !== 1 ? 's' : ''} for "{submittedQuery}"
+                </p>
+              )}
               
               {results.length > 0 ? (
                  <motion.div
@@ -111,14 +123,18 @@ export default function SearchPage() {
                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--bg-surface-2)] text-[var(--text-tertiary)] mb-4">
                       <SearchIcon className="h-8 w-8" />
                    </div>
-                   <h3 className="text-lg font-semibold text-[var(--text-primary)]">No results found</h3>
+                   <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                     {submittedQuery ? "No results found" : "No documents yet"}
+                   </h3>
                    <p className="mt-1 text-sm text-[var(--text-secondary)] max-w-md">
-                      We couldn't find anything matching "{submittedQuery}". Try adjusting your search terms.
+                      {submittedQuery 
+                        ? `We couldn't find anything matching "${submittedQuery}". Try adjusting your search terms.`
+                        : "Upload some documents to see them here."}
                    </p>
                 </div>
               )}
            </div>
-        ) : null}
+        )}
       </div>
     </motion.div>
   );

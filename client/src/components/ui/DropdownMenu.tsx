@@ -1,4 +1,5 @@
 import * as React from "react"
+import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
 
 export interface DropdownMenuItem {
@@ -16,11 +17,28 @@ export interface DropdownMenuProps {
 
 export function DropdownMenu({ trigger, items, align = "right" }: DropdownMenuProps) {
   const [isOpen, setIsOpen] = React.useState(false);
+  const triggerRef = React.useRef<HTMLDivElement>(null);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = React.useState({ top: 0, left: 0, width: 0 });
+
+  React.useEffect(() => {
+    if (isOpen && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setCoords({
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width
+      });
+    }
+  }, [isOpen]);
 
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (
+        dropdownRef.current && !dropdownRef.current.contains(target) &&
+        triggerRef.current && !triggerRef.current.contains(target)
+      ) {
         setIsOpen(false);
       }
     };
@@ -34,23 +52,28 @@ export function DropdownMenu({ trigger, items, align = "right" }: DropdownMenuPr
   }, [isOpen]);
 
   return (
-    <div className="relative inline-block text-left" ref={dropdownRef}>
+    <>
       <div 
+        ref={triggerRef}
         onClick={(e) => { 
           e.preventDefault(); 
           e.stopPropagation();
           setIsOpen(!isOpen); 
         }} 
-        className="cursor-pointer"
+        className="cursor-pointer inline-block"
       >
         {trigger}
       </div>
 
-      {isOpen && (
+      {isOpen && typeof document !== "undefined" && createPortal(
         <div 
+          ref={dropdownRef}
+          style={{ 
+            top: coords.top + 8, 
+            left: align === "right" ? coords.left + coords.width - 160 : coords.left 
+          }}
           className={cn(
-            "absolute z-50 mt-2 min-w-[160px] origin-top-right rounded-xl bg-white py-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none",
-            align === "right" ? "right-0" : "left-0"
+            "absolute z-[9999] min-w-[160px] rounded-xl bg-white dark:bg-[#1e1e1e] py-2 shadow-lg border border-[var(--border-default)] focus:outline-none"
           )}
         >
           {items.map((item, idx) => (
@@ -62,14 +85,15 @@ export function DropdownMenu({ trigger, items, align = "right" }: DropdownMenuPr
                 setIsOpen(false);
                 item.onClick();
               }}
-              className={cn("flex w-full items-center px-4 py-2 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-100", item.className)}
+              className={cn("flex w-full items-center px-4 py-2 text-sm font-medium text-zinc-900 dark:text-zinc-100 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800", item.className)}
             >
-              {item.icon && <span className="mr-3 text-zinc-500">{item.icon}</span>}
+              {item.icon && <span className="mr-3 text-zinc-500 dark:text-zinc-400">{item.icon}</span>}
               {item.label}
             </button>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
-    </div>
+    </>
   )
 }

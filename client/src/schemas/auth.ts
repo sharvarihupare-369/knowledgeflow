@@ -10,7 +10,7 @@ export const signupSchema = yup.object({
     .string()
     .required("Email is required")
     .email("Must be a valid email"),
-  company_name: yup
+  companyName: yup
     .string()
     .required("Company name is required")
     .max(100, "Company name cannot exceed 100 characters"),

@@ -52,6 +52,13 @@ export const resendOTP = asyncHandler(async (req: Request, res: Response): Promi
 
 export const createNewAccount = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const result = await registerUserService.createNewAccount(req.body)
+    if (result && 'isPending' in result && result.isPending) {
+        res.status(200).json({
+            success: true,
+            message: result.message
+        });
+        return;
+    }
     res.status(201).json({
         success: true,
         message: "New Account Created Successfully."
@@ -86,5 +93,20 @@ export const logoutUser = asyncHandler(async (req: Request, res: Response): Prom
     res.status(200).json({
         success: true,
         message: "User logged out successfully."
+    });
+});
+
+export const acceptInvite = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { token, name, password } = req.body;
+    if (!token || !name || !password) {
+        throw new ApiError(400, "Token, name and password are required.");
+    }
+    
+    const result = await registerUserService.acceptInvite(token, name, password);
+    
+    res.status(201).json({
+        success: true,
+        message: "Invite accepted and account created successfully.",
+        data: result
     });
 });

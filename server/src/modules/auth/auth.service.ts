@@ -187,6 +187,21 @@ export const createNewAccount = async (payload: createNewAccountProps) => {
         throw new ApiError(400, "Both password should match each other.");
     }
 
+    const existingOrg = await registerUserRepository.findOrganisationByName(existsSignupRequest.companyName);
+    
+    if (existingOrg) {
+        const passwordHash = await bcrypt.hash(password, 10);
+        await registerUserRepository.createJoinRequest({
+            existsSignupRequest,
+            passwordHash,
+            organisationId: existingOrg.id
+        });
+        return {
+            isPending: true,
+            message: "Your request has been sent to your organisation administrator. You will be able to login once your request is approved."
+        };
+    }
+
     const passwordHash = await bcrypt.hash(password, 10);
     const baseSlug = slugify(
         existsSignupRequest.companyName,
@@ -209,6 +224,12 @@ export const createNewAccount = async (payload: createNewAccountProps) => {
 
 export const loginUser = async (payload: loginUserProps) => {
     const { email, password } = payload;
+
+    const pendingRequest = await registerUserRepository.findJoinRequestByEmail(email);
+    if (pendingRequest) {
+        throw new ApiError(403, "Your account is awaiting administrator approval.");
+    }
+
     const existingUser = await registerUserRepository.findUserByEmail(email);
     if (!existingUser) {
         throw new ApiError(404, "User does not exists. Please signup first!");
@@ -252,3 +273,34 @@ export const userDetails = async (userId: string) => {
         updatedAt: existingUser.updatedAt,
     };
 }
+
+export const acceptInvite = async (token: string, name: string, password: string) => {
+    const invite = await registerUserRepository.findInviteByToken(token);
+    if (!invite) throw new ApiError(404, "Invalid or expired invitation token.");
+    if (invite.status !== 'PENDING') throw new ApiError(400, "Invitation is no longer valid.");
+    if (invite.expiresAt < new Date()) throw new ApiError(400, "Invitation has expired.");
+    
+    // Check if user already exists
+    const user = await registerUserRepository.findUserByEmail(invite.email);
+    if (user) {
+        throw new ApiError(409, "User already exists with this email! Please login.");
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    
+    const result = await registerUserRepository.acceptInviteTransaction({
+        inviteId: invite.id,
+        email: invite.email,
+        name,
+        passwordHash,
+        organisationId: invite.organisationId,
+        collectionIds: invite.collectionIds
+    });
+
+    const jwtToken = await jwt.sign({ id: result.user.id, email: result.user.email }, env.SECRET_KEY, { expiresIn: '1d' });
+    return {
+        token: jwtToken,
+        email: result.user.email,
+        name: result.user.name
+    };
+};

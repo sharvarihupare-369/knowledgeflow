@@ -50,7 +50,19 @@ export const updateDocumentStatus = async (documentId: string, status: DocumentS
 };
 
 export const getAllDocuments = async (userId: string, collectionId?: string) => {
-    const where: Prisma.DocumentWhereInput = { uploadedBy: userId };
+    const membership = await prisma.userOrganisationMembership.findFirst({
+        where: { userId }
+    });
+    if (!membership) throw new ApiError(404, "User not associated with any organisation");
+
+    const where: Prisma.DocumentWhereInput = {
+        collection: {
+            organisationId: membership.orgId,
+            ...(membership.role !== 'ADMIN' && {
+                usersWithAccess: { some: { id: userId } }
+            })
+        }
+    };
     if (collectionId) {
         where.collectionId = collectionId;
     }
@@ -61,8 +73,21 @@ export const getAllDocuments = async (userId: string, collectionId?: string) => 
 };
 
 export const getDocumentById = async (id: string, userId: string) => {
+    const membership = await prisma.userOrganisationMembership.findFirst({
+        where: { userId }
+    });
+    if (!membership) throw new ApiError(404, "User not associated with any organisation");
+
     const document = await prisma.document.findFirst({
-        where: { id, uploadedBy: userId }
+        where: { 
+            id,
+            collection: {
+                organisationId: membership.orgId,
+                ...(membership.role !== 'ADMIN' && {
+                    usersWithAccess: { some: { id: userId } }
+                })
+            }
+        }
     });
 
     if (!document) {
@@ -73,13 +98,21 @@ export const getDocumentById = async (id: string, userId: string) => {
 };
 
 export const deleteDocument = async (id: string, userId: string) => {
-    // 1. Verify the document exists and belongs to the user
+    const membership = await prisma.userOrganisationMembership.findFirst({
+        where: { userId }
+    });
+    if (!membership) throw new ApiError(404, "User not associated with any organisation");
+
+    // 1. Verify the document exists and belongs to the user (or user is ADMIN)
     const document = await prisma.document.findFirst({
-        where: { id, uploadedBy: userId }
+        where: { 
+            id,
+            ...(membership.role !== 'ADMIN' && { uploadedBy: userId })
+        }
     });
 
     if (!document) {
-        throw new ApiError(404, "Document not found");
+        throw new ApiError(404, "Document not found or you don't have permission to delete it");
     }
 
     // 2. Delete the record from the database
@@ -93,4 +126,12 @@ export const deleteDocument = async (id: string, userId: string) => {
     ]);
 
     return document;
+};
+
+export const getDocumentChunks = async (documentId: string, limit: number = 15) => {
+    return await prisma.chunk.findMany({
+        where: { documentId },
+        orderBy: { chunkIndex: 'asc' },
+        take: limit,
+    });
 };

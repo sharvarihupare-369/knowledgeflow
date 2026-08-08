@@ -232,3 +232,98 @@ export const createMemberAccountTransaction = async ({
         return user;
     })
 }
+
+export const findOrganisationByName = async (name: string) => {
+    return prisma.organisation.findFirst({
+        where: { name: { equals: name, mode: 'insensitive' } },
+    });
+};
+
+export const createJoinRequest = async ({
+    existsSignupRequest,
+    passwordHash,
+    organisationId
+}: {
+    existsSignupRequest: import('@prisma/client').SignupRequest;
+    passwordHash: string;
+    organisationId: string;
+}) => {
+    return prisma.$transaction(async (tx) => {
+        const joinRequest = await tx.joinRequest.create({
+            data: {
+                name: existsSignupRequest.name,
+                email: existsSignupRequest.email,
+                passwordHash,
+                organisationId,
+            }
+        });
+
+        await tx.signupRequest.delete({
+            where: {
+                id: existsSignupRequest.id,
+            }
+        });
+
+        return joinRequest;
+    });
+};
+
+export const findJoinRequestByEmail = async (email: string) => {
+    return prisma.joinRequest.findUnique({
+        where: { email },
+        include: { organisation: true }
+    });
+};
+
+export const findInviteByToken = async (token: string) => {
+    return prisma.invitation.findUnique({
+        where: { token }
+    });
+};
+
+export const acceptInviteTransaction = async ({
+    inviteId,
+    email,
+    name,
+    passwordHash,
+    organisationId,
+    collectionIds
+}: {
+    inviteId: string;
+    email: string;
+    name: string;
+    passwordHash: string;
+    organisationId: string;
+    collectionIds: string[];
+}) => {
+    return prisma.$transaction(async (tx) => {
+        const user = await tx.user.create({
+            data: {
+                name,
+                email,
+                passwordHash,
+                ...(collectionIds.length > 0 && {
+                    collectionAccess: {
+                        connect: collectionIds.map(id => ({ id }))
+                    }
+                })
+            }
+        });
+
+        await tx.userOrganisationMembership.create({
+            data: {
+                userId: user.id,
+                orgId: organisationId,
+                role: MembershipRole.MEMBER,
+                status: MembershipStatus.ACTIVE,
+            }
+        });
+
+        const invite = await tx.invitation.update({
+            where: { id: inviteId },
+            data: { status: 'ACCEPTED' }
+        });
+
+        return { user, invite };
+    });
+};

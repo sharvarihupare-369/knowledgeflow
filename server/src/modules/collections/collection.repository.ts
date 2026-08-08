@@ -11,6 +11,9 @@ export const createCollection = async (userId: string, payload: createCollection
     if (!membership) {
         throw new ApiError(404, "User is not associated with any organisation.");
     }
+    if (membership.role !== 'ADMIN') {
+        throw new ApiError(403, "Only administrators can create collections.");
+    }
 
     const existingCollection = await prisma.collection.findFirst({
         where: {
@@ -28,6 +31,9 @@ export const createCollection = async (userId: string, payload: createCollection
             ...(payload.description ? { description: payload.description } : {}),
             organisationId: membership.orgId,
             createdBy: userId,
+            usersWithAccess: {
+                connect: { id: userId }
+            }
         }
     })
 }
@@ -45,6 +51,11 @@ export const getCollections = async (userId: string) => {
     return await prisma.collection.findMany({
         where: {
             organisationId: membership.orgId,
+            ...(membership.role !== 'ADMIN' && {
+                usersWithAccess: {
+                    some: { id: userId }
+                }
+            })
         },
         include: {
             _count: {

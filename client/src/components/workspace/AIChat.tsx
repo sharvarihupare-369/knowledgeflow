@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, Send, Sparkles, ChevronDown, MessageSquare, Plus, Trash2, Menu } from "lucide-react";
+import { Bot, Send, Sparkles, ChevronDown, MessageSquare, Plus, Trash2, Menu, Square } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { api } from "@/lib/api";
 import { useConversations, useConversationMessages, useDeleteConversation, Conversation } from "@/hooks/useChat";
@@ -20,11 +20,6 @@ type Source = {
   chunkIndex?: number;
 };
 
-const suggestions = [
-  "Summarize the 2026 roadmap",
-  "What is our remote work policy?",
-  "Which vendors renew this quarter?",
-];
 
 function TypingIndicator() {
   return (
@@ -53,6 +48,47 @@ export function AIChat() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const handleStopGeneration = () => {
+    abortControllerRef.current?.abort();
+  };
+
+  const selectedCollection = collections.find(c => c.id === selectedCollectionId);
+  const suggestions = (() => {
+    if (!selectedCollection) return [
+      "Summarize the key points",
+      "What are the main takeaways?",
+      "Can you explain this in detail?"
+    ];
+
+    const name = selectedCollection.name.toLowerCase();
+    if (name.includes("engineering")) {
+      return [
+        "What is our frontend tech stack?",
+        "Explain the CI/CD deployment process",
+        "How do I set up the local development environment?",
+      ];
+    } else if (name.includes("hr") || name.includes("human resources")) {
+      return [
+        "What is our remote work policy?",
+        "Summarize the employee benefits package",
+        "How do I request time off?",
+      ];
+    } else if (name.includes("sales")) {
+      return [
+        "What is the Q3 sales strategy?",
+        "List the top enterprise clients",
+        "Summarize the new pricing model",
+      ];
+    }
+    
+    return [
+      `Summarize the documents in ${selectedCollection.name}`,
+      "What are the key policies mentioned?",
+      "List the most important takeaways",
+    ];
+  })();
 
   // Fetch collections on mount
   useEffect(() => {
@@ -124,6 +160,7 @@ export function AIChat() {
       { role: "ASSISTANT", content: "" },
     ]);
     setIsLoading(true);
+    abortControllerRef.current = new AbortController();
 
     try {
       const token = localStorage.getItem("token");
@@ -131,6 +168,7 @@ export function AIChat() {
         `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api"}/chat/search`,
         {
           method: "POST",
+          signal: abortControllerRef.current.signal,
           headers: {
             "Content-Type": "application/json",
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -181,7 +219,10 @@ export function AIChat() {
           } catch { /* ignore */ }
         }
       }
-    } catch {
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        return;
+      }
       setMessages((prev) => {
         const msgs = [...prev];
         const last = msgs[msgs.length - 1];
@@ -196,7 +237,6 @@ export function AIChat() {
   };
 
   const firstName = user?.name?.split(" ")[0] || "there";
-  const selectedCollection = collections.find((c) => c.id === selectedCollectionId);
 
   return (
     <div className="flex h-full overflow-hidden" style={{ background: "var(--bg-base)" }}>
@@ -476,15 +516,26 @@ export function AIChat() {
                 disabled={isLoading || !selectedCollectionId}
                 className="flex-1 bg-transparent px-2 py-1.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none disabled:opacity-60"
               />
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => handleSend()}
-                disabled={isLoading || !input.trim() || !selectedCollectionId}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-indigo-600 text-white shadow-sm shadow-indigo-500/20 transition-colors hover:bg-indigo-700 disabled:opacity-40"
-              >
-                <Send className="h-4 w-4 ml-0.5" />
-              </motion.button>
+              {isLoading ? (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleStopGeneration}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-red-600/90 text-white shadow-sm shadow-red-500/20 transition-colors hover:bg-red-700"
+                >
+                  <Square className="h-3.5 w-3.5 fill-current" />
+                </motion.button>
+              ) : (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleSend()}
+                  disabled={!input.trim() || !selectedCollectionId}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-indigo-600 text-white shadow-sm shadow-indigo-500/20 transition-colors hover:bg-indigo-700 disabled:opacity-40"
+                >
+                  <Send className="h-4 w-4 ml-0.5" />
+                </motion.button>
+              )}
             </div>
           </div>
         </div>

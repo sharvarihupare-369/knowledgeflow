@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createSignupRequest, verifyEmail, verifyOTP, createNewAccount, resendOTP, loginUser, userDetails, logoutUser } from "./auth.controller.js";
+import { createSignupRequest, verifyEmail, verifyOTP, createNewAccount, resendOTP, loginUser, userDetails, logoutUser, acceptInvite } from "./auth.controller.js";
 import { validateRequest } from "../../middlewares/validateRequest.middleware.js";
 import { signupSchema, verifyOtpSchema, resendOtpSchema, createAccountSchema, loginSchema } from "../../validations/auth.schema.js";
 import { authenticator } from "../../middlewares/authenticator.middleware.js";
@@ -12,6 +12,7 @@ router.post('/verify-otp', validateRequest(verifyOtpSchema), verifyOTP);
 router.post('/resend-otp', validateRequest(resendOtpSchema), resendOTP);
 router.post('/create-account', validateRequest(createAccountSchema), createNewAccount);
 router.post('/login', validateRequest(loginSchema), loginUser);
+router.post('/accept-invite', acceptInvite);
 router.get('/user-details', authenticator, userDetails);
 router.post('/logout', authenticator, logoutUser);
 

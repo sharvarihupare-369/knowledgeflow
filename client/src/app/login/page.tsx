@@ -60,7 +60,7 @@ export default function LoginPage() {
           <div>
             <label
               htmlFor="email"
-              className="text-zinc-900 mb-1 block text-sm font-medium"
+              className="mb-1 block text-sm font-medium text-zinc-900 dark:text-zinc-100"
             >
               Email address
             </label>
@@ -77,7 +77,7 @@ export default function LoginPage() {
             <div className="mb-1 flex items-center justify-between">
               <label
                 htmlFor="password"
-                className="text-zinc-900 block text-sm font-medium"
+                className="block text-sm font-medium text-zinc-900 dark:text-zinc-100"
               >
                 Password
               </label>
@@ -108,7 +108,7 @@ export default function LoginPage() {
       </form>
 
       <div className="mt-6 text-center text-sm">
-        <p className="text-zinc-600">
+        <p className="text-zinc-600 dark:text-zinc-400">
           Don't have an account?{" "}
           <Link
             href="/signup"

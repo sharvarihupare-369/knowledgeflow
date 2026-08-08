@@ -57,7 +57,7 @@ export default function SignupPage() {
         <div>
           <label
             htmlFor="name"
-            className="mb-1 block text-sm font-medium text-zinc-900"
+            className="mb-1 block text-sm font-medium text-zinc-900 dark:text-zinc-100"
           >
             Full name
           </label>
@@ -72,24 +72,24 @@ export default function SignupPage() {
 
         <div>
           <label
-            htmlFor="company_name"
-            className="mb-1 block text-sm font-medium text-zinc-900"
+            htmlFor="companyName"
+            className="mb-1 block text-sm font-medium text-zinc-900 dark:text-zinc-100"
           >
             Company name
           </label>
           <Input
-            id="company_name"
+            id="companyName"
             type="text"
             placeholder="Acme Inc."
-            {...register("company_name")}
-            error={errors.company_name?.message}
+            {...register("companyName")}
+            error={errors.companyName?.message}
           />
         </div>
 
         <div>
           <label
             htmlFor="email"
-            className="mb-1 block text-sm font-medium text-zinc-900"
+            className="mb-1 block text-sm font-medium text-zinc-900 dark:text-zinc-100"
           >
             Work email
           </label>
@@ -105,7 +105,7 @@ export default function SignupPage() {
         <div className="pt-2">
           <Button
             type="submit"
-            className="w-full bg-[#10172A] hover:bg-[#1e293b]"
+            className="w-full bg-[#10172A] hover:bg-[#1e293b] dark:bg-zinc-100 dark:hover:bg-zinc-200"
             isLoading={isPending}
           >
             Continue
@@ -128,11 +128,11 @@ export default function SignupPage() {
       </div>
 
       <div className="mt-6 text-center text-sm">
-        <p className="text-zinc-600">
+        <p className="text-zinc-600 dark:text-zinc-400">
           Already have an account?{" "}
           <Link
             href="/login"
-            className="font-medium text-zinc-900 hover:text-zinc-800"
+            className="font-medium text-zinc-900 hover:text-zinc-800 dark:text-zinc-100 dark:hover:text-zinc-300"
           >
             Log in
           </Link>

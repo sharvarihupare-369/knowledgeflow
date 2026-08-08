@@ -1,9 +1,3 @@
-.env
-node_modules
-/src/generated/prisma
-dist/
-dist
-
 # Vector database storage
 qdrant_storage/
 
@@ -18,4 +12,4 @@ node_modules/
 .Spotlight-V100
 .Trashes
 ehthumbs.db
-Thumbs.dbqdrant_storage/
+Thumbs.db

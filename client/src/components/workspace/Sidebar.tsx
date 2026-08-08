@@ -12,12 +12,14 @@ import {
   Settings,
   Zap,
   ChevronRight,
+  Users,
+  MailPlus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/hooks/useUser";
 import { getInitials } from "@/lib/formatters";
 
-const navItems = [
+const baseNavItems = [
   { name: "Dashboard",   href: "/workspace",             icon: LayoutDashboard },
   { name: "Collections", href: "/workspace/collections", icon: Folder },
   { name: "Documents",   href: "/workspace/documents",   icon: FileText },
@@ -29,6 +31,13 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const { data: user } = useUser();
+
+  const navItems = user?.role === 'ADMIN' 
+    ? [
+        ...baseNavItems, 
+        { name: "Invites", href: "/workspace/team", icon: MailPlus }
+      ]
+    : baseNavItems;
 
   return (
     <motion.aside

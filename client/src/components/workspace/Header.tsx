@@ -11,12 +11,12 @@ import { api } from "@/lib/api";
 import { toast } from "sonner";
 
 const pageTitles: Record<string, string> = {
-  "/workspace":             "Dashboard",
+  "/workspace": "Dashboard",
   "/workspace/collections": "Collections",
-  "/workspace/documents":   "Documents",
-  "/workspace/chat":        "AI Chat",
-  "/workspace/search":      "Search",
-  "/workspace/settings":    "Settings",
+  "/workspace/documents": "Documents",
+  "/workspace/chat": "AI Chat",
+  "/workspace/search": "Search",
+  "/workspace/settings": "Settings",
 };
 
 export function Header() {
@@ -78,7 +78,7 @@ export function Header() {
       </div>
 
       {/* Center: search */}
-      <div className="hidden md:flex flex-1 max-w-sm mx-8">
+      {/* <div className="hidden md:flex flex-1 max-w-sm mx-8">
         <label className="relative w-full group">
           <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--text-tertiary)] transition-colors group-focus-within:text-indigo-500" />
           <input
@@ -87,7 +87,7 @@ export function Header() {
             className="h-9 w-full rounded-full border border-[var(--border-default)] bg-[var(--bg-surface-2)] pl-9 pr-4 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none transition-all focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15"
           />
         </label>
-      </div>
+      </div> */}
 
       {/* Right: controls */}
       <div className="flex items-center gap-2">
@@ -114,7 +114,7 @@ export function Header() {
 
         {/* Avatar with Dropdown */}
         <div className="relative" ref={profileRef}>
-          <div 
+          <div
             onClick={() => setIsProfileOpen(!isProfileOpen)}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-400 to-violet-500 text-xs font-semibold text-white shadow-sm cursor-pointer hover:shadow-md transition-all ring-2 ring-transparent hover:ring-indigo-500/20"
           >
@@ -135,7 +135,7 @@ export function Header() {
 
               {/* Menu Items */}
               <div className="py-1">
-                <button 
+                <button
                   onClick={() => {
                     setIsProfileOpen(false);
                     router.push("/workspace/settings");
@@ -145,7 +145,7 @@ export function Header() {
                   Settings
                 </button>
                 <div className="h-px bg-zinc-100 dark:bg-white/5 my-1" />
-                <button 
+                <button
                   onClick={handleLogout}
                   className="w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors"
                 >

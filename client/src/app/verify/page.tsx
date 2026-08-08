@@ -88,7 +88,7 @@ function OtpInput({
               value={digit}
               onChange={(e) => handleChange(e, idx)}
               onKeyDown={(e) => handleKeyDown(e, idx)}
-              className="h-14 w-12 rounded-lg border border-zinc-200 bg-white text-center text-xl font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="h-14 w-12 rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-[#0a0a0a] text-center text-xl font-semibold text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {idx === 2 && <span className="mx-1 text-zinc-400">-</span>}
           </div>
@@ -183,24 +183,24 @@ function VerifyForm() {
   return (
     <div className="w-full">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-zinc-900">
+        <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
           Check your inbox
         </h1>
-        <p className="mt-2 text-sm text-zinc-500">
+        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
           We sent a 6-digit code to {obfuscatedEmail}. Enter it below to
           continue.
         </p>
       </div>
 
-      <div className="mb-8 flex items-center rounded-xl border border-zinc-100 bg-zinc-50/50 p-4">
-        <div className="mr-4 flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-100">
-          <Mail className="h-5 w-5 text-zinc-600" />
+      <div className="mb-8 flex items-center rounded-xl border border-zinc-100 bg-zinc-50/50 p-4 dark:border-zinc-800 dark:bg-zinc-900/50">
+        <div className="mr-4 flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800">
+          <Mail className="h-5 w-5 text-zinc-600 dark:text-zinc-400" />
         </div>
         <div>
-          <div className="text-sm font-medium text-zinc-900">
+          <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
             Verification code sent
           </div>
-          <div className="text-sm text-zinc-500">{email}</div>
+          <div className="text-sm text-zinc-500 dark:text-zinc-400">{email}</div>
         </div>
       </div>
 
@@ -222,7 +222,7 @@ function VerifyForm() {
 
         <Button
           type="submit"
-          className="w-full bg-[#10172A] hover:bg-[#1e293b]"
+          className="w-full bg-[#10172A] hover:bg-[#1e293b] dark:bg-zinc-100 dark:hover:bg-zinc-200"
           isLoading={isVerifying}
         >
           Verify code
@@ -234,7 +234,7 @@ function VerifyForm() {
           type="button"
           onClick={handleResend}
           disabled={countdown > 0 || isResending}
-          className="inline-flex items-center text-zinc-600 hover:text-zinc-900 disabled:opacity-50"
+          className="inline-flex items-center text-zinc-600 hover:text-zinc-900 disabled:opacity-50 dark:text-zinc-400 dark:hover:text-zinc-300"
         >
           Didn't get the code?
           {countdown > 0 ? (
@@ -248,11 +248,11 @@ function VerifyForm() {
       </div>
 
       <div className="mt-6 text-center text-sm">
-        <p className="text-zinc-500">
+        <p className="text-zinc-500 dark:text-zinc-400">
           Wrong email?{" "}
           <Link
             href="/signup"
-            className="font-medium text-zinc-900 hover:text-zinc-800"
+            className="font-medium text-zinc-900 hover:text-zinc-800 dark:text-zinc-100 dark:hover:text-zinc-300"
           >
             Go back
           </Link>

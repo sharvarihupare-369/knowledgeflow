@@ -79,7 +79,11 @@ export const searchVectors = async ({
         });
 
         return searchResult;
-    } catch (error) {
+    } catch (error: any) {
+        if (error.status === 404 || (error.message && error.message.includes("Not found"))) {
+            console.warn(`Qdrant collection "documents" not found during search. Returning empty results.`);
+            return [];
+        }
         console.error("Failed to search vectors in Qdrant:", error);
         throw error;
     }
@@ -104,7 +108,11 @@ export const deleteVectorsByDocumentId = async (collectionName: string, document
             }
         });
         console.log(`Successfully deleted vectors for document: ${documentId}`);
-    } catch (error) {
+    } catch (error: any) {
+        if (error.status === 404 || (error.message && error.message.includes("Not found"))) {
+            console.warn(`Qdrant collection "documents" not found during delete. Ignoring.`);
+            return;
+        }
         console.error("Failed to delete vectors from Qdrant:", error);
         throw error;
     }

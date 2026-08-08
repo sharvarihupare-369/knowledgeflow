@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, Folder } from "lucide-react";
 import { useCollections, useCreateCollection } from "@/hooks/useCollections";
+import { useUser } from "@/hooks/useUser";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -35,6 +36,7 @@ function SkeletonCard() {
 }
 
 export default function CollectionsPage() {
+  const { data: user } = useUser();
   const { data: collections = [], isLoading } = useCollections();
   const { mutate: createCollection, isPending } = useCreateCollection();
   const [isModalOpen, setIsModalOpen]           = useState(false);
@@ -76,13 +78,15 @@ export default function CollectionsPage() {
             Organize your company&apos;s knowledge into collections.
           </p>
         </div>
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 rounded-[12px] bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm shadow-indigo-500/20 transition-all hover:-translate-y-px"
-        >
-          <Plus className="h-4 w-4" />
-          New Collection
-        </Button>
+        {user?.role === 'ADMIN' && (
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 rounded-[12px] bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm shadow-indigo-500/20 transition-all hover:-translate-y-px"
+          >
+            <Plus className="h-4 w-4" />
+            New Collection
+          </Button>
+        )}
       </motion.div>
 
       {/* Content */}
@@ -101,14 +105,16 @@ export default function CollectionsPage() {
           </div>
           <h3 className="text-lg font-semibold text-[var(--text-primary)]">No collections yet</h3>
           <p className="mt-1.5 max-w-xs text-sm text-[var(--text-secondary)]">
-            Create a collection to start organizing your documents.
+            {user?.role === 'ADMIN' ? "Create a collection to start organizing your documents." : "Ask an administrator to create a collection."}
           </p>
-          <Button
-            onClick={() => setIsModalOpen(true)}
-            className="mt-6 rounded-[12px] bg-indigo-600 text-white hover:bg-indigo-700"
-          >
-            Create your first collection
-          </Button>
+          {user?.role === 'ADMIN' && (
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              className="mt-6 rounded-[12px] bg-indigo-600 text-white hover:bg-indigo-700"
+            >
+              Create your first collection
+            </Button>
+          )}
         </motion.div>
       ) : (
         <motion.div

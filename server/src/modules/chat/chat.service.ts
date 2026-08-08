@@ -57,7 +57,7 @@ export const semanticSearch = async ({ userId, collectionId, conversationId, que
 
     // 1. Vector Search & 2. Keyword Search (PostgreSQL full-text)
     const cleanedQuestion = question.replace(/[^\w\s]/g, '');
-    const keywordQuery = cleanedQuestion.split(/\s+/).filter(w => w.length > 2).join(' | ');
+    const keywordQuery = cleanedQuestion.split(/\s+/).filter(w => w.length > 2).join(' & ');
     
     const [searchResult, keywordChunks] = await Promise.all([
         searchVectors({
@@ -70,7 +70,7 @@ export const semanticSearch = async ({ userId, collectionId, conversationId, que
                 document: { collectionId },
                 content: { search: keywordQuery }
             },
-            take: 5
+            take: 3
         }).catch(err => {
             console.error("Keyword search failed:", err);
             return [];
@@ -82,7 +82,8 @@ export const semanticSearch = async ({ userId, collectionId, conversationId, que
 
     searchResult.forEach(result => {
         const chunkId = result.payload?.chunkId as string | undefined;
-        if (chunkId) {
+        // Apply a strict similarity threshold to prevent irrelevant context
+        if (chunkId && result.score > 0.5) {
             combinedChunksMap.set(chunkId, {
                 content: result.payload?.content as string,
                 documentId: result.payload?.documentId as string,
@@ -100,12 +101,12 @@ export const semanticSearch = async ({ userId, collectionId, conversationId, que
                 documentId: chunk.documentId,
                 page: chunk.page,
                 chunkIndex: chunk.chunkIndex,
-                score: 0.8 // Arbitrary score to ensure exact keyword matches are considered good
+                score: 0.75 // Keyword exact match
             });
         }
     });
 
-    const finalResults = Array.from(combinedChunksMap.values()).sort((a, b) => b.score - a.score).slice(0, 8);
+    const finalResults = Array.from(combinedChunksMap.values()).sort((a, b) => b.score - a.score).slice(0, 5);
 
     if (finalResults.length === 0) {
         const answer = "I couldn't find relevant information in the uploaded documents.";

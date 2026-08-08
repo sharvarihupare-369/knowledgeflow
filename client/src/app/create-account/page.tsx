@@ -86,7 +86,7 @@ function CreateAccountForm() {
       <div>
         <label
           htmlFor="password"
-          className="mb-1 block text-sm font-medium text-zinc-900"
+          className="mb-1 block text-sm font-medium text-zinc-900 dark:text-zinc-100"
         >
           Password
         </label>
@@ -115,7 +115,7 @@ function CreateAccountForm() {
       <div>
         <label
           htmlFor="confirmPassword"
-          className="mb-1 block text-sm font-medium text-zinc-900"
+          className="mb-1 block text-sm font-medium text-zinc-900 dark:text-zinc-100"
         >
           Confirm password
         </label>
@@ -142,7 +142,7 @@ function CreateAccountForm() {
         </div>
       </div>
 
-      <div className="space-y-2 rounded-lg border border-zinc-100 bg-zinc-50/50 p-4">
+      <div className="space-y-2 rounded-lg border border-zinc-100 bg-zinc-50/50 p-4 dark:border-zinc-800 dark:bg-zinc-900/50">
         {rules.map((rule, idx) => (
           <div key={idx} className="flex items-center space-x-2 text-sm">
             {rule.valid ? (
@@ -153,7 +153,7 @@ function CreateAccountForm() {
             <span
               className={
                 rule.valid
-                  ? "text-zinc-700"
+                  ? "text-zinc-700 dark:text-zinc-300"
                   : "text-zinc-500"
               }
             >
@@ -166,7 +166,7 @@ function CreateAccountForm() {
       <div className="pt-2">
         <Button
           type="submit"
-          className="w-full bg-[#10172A] hover:bg-[#1e293b]"
+          className="w-full bg-[#10172A] hover:bg-[#1e293b] dark:bg-zinc-100 dark:hover:bg-zinc-200"
           isLoading={isPending}
         >
           Finish setup

@@ -88,11 +88,18 @@ export const semanticSearch = asyncHandler(async (req: Request, res: Response): 
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
+    let isClientDisconnected = false;
+    req.on('close', () => {
+        isClientDisconnected = true;
+    });
+
     res.write(`data: ${JSON.stringify({ type: 'metadata', sources, conversationId: activeConversationId })}\n\n`);
 
     let fullAnswer = "";
     try {
         for await (const chunk of stream) {
+            if (isClientDisconnected) break;
+
             if (chunk && chunk.response) {
                 fullAnswer += chunk.response;
                 res.write(`data: ${JSON.stringify({ type: 'chunk', text: chunk.response })}\n\n`);

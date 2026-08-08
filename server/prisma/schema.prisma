@@ -22,6 +22,8 @@ model User {
   collections        Collection[]                 @relation("CollectionCreator")
   uploadedDocuments  Document[]                   @relation("UploadedDocuments")
   conversations      Conversation[]
+  invitationsSent    Invitation[]                 @relation("Inviter")
+  collectionAccess   Collection[]                 @relation("UserCollectionAccess")
   createdAt          DateTime                     @default(now())
   updatedAt          DateTime                     @updatedAt
 }
@@ -52,8 +54,22 @@ model Organisation {
   owner       User                         @relation("OrganisationOwner", fields: [ownerId], references: [id])
   memberships UserOrganisationMembership[]
   collections Collection[]
+  joinRequests JoinRequest[]
+  invitations  Invitation[]
   createdAt   DateTime                     @default(now())
   updatedAt   DateTime                     @updatedAt
+}
+
+model JoinRequest {
+  id             String           @id @default(uuid())
+  name           String
+  email          String           @unique
+  passwordHash   String
+  organisationId String
+  status         MembershipStatus @default(PENDING)
+  organisation   Organisation     @relation(fields: [organisationId], references: [id])
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 }
 
 enum MembershipRole {
@@ -65,6 +81,33 @@ enum MembershipStatus {
   ACTIVE
   INACTIVE
   PENDING
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+model Invitation {
+  id             String           @id @default(uuid())
+  email          String
+  organisationId String
+  inviterId      String
+  token          String           @unique
+  status         InvitationStatus @default(PENDING)
+  expiresAt      DateTime
+  collectionIds  String[]
+  
+  organisation   Organisation     @relation(fields: [organisationId], references: [id])
+  inviter        User             @relation("Inviter", fields: [inviterId], references: [id])
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([organisationId])
+  @@index([token])
 }
 
 model UserOrganisationMembership {
@@ -91,6 +134,7 @@ model Collection {
   createdBy      String
   organisation   Organisation   @relation(fields: [organisationId], references: [id])
   creator        User           @relation("CollectionCreator", fields: [createdBy], references: [id])
+  usersWithAccess User[]        @relation("UserCollectionAccess")
   documents      Document[]
   conversations  Conversation[]
   createdAt      DateTime       @default(now())

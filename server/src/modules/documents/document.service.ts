@@ -53,3 +53,7 @@ export const getDocumentById = async (id: string, userId: string) => {
 export const updateDocumentStatus = async (id: string, status: DocumentStatus) => {
     return await documentRepository.updateDocumentStatus(id, status);
 };
+
+export const getDocumentChunks = async (id: string, limit?: number) => {
+    return await documentRepository.getDocumentChunks(id, limit);
+};
