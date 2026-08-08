@@ -1,17 +1,17 @@
-import { Router } from "express";
-import { authenticator } from "../../middlewares/authenticator.middleware.js";
-import { authorizeRole } from "../../middlewares/rbac.middleware.js";
+import { Router } from 'express';
+import { authenticator } from '../../middlewares/authenticator.middleware.js';
+import { authorizeRole } from '../../middlewares/rbac.middleware.js';
 import {
-    getUnifiedUsers, 
-    approveJoinRequest, 
-    rejectJoinRequest,
-    deactivateUser,
-    reactivateUser,
-    getInvites,
-    createInvites,
-    revokeInvite,
-    resendInvite
-} from "./admin.controller.js";
+  getUnifiedUsers,
+  approveJoinRequest,
+  rejectJoinRequest,
+  deactivateUser,
+  reactivateUser,
+  getInvites,
+  createInvites,
+  revokeInvite,
+  resendInvite,
+} from './admin.controller.js';
 
 const router = Router();
 

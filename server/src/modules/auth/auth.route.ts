@@ -1,8 +1,18 @@
-import { Router } from "express";
-import { createSignupRequest, verifyEmail, verifyOTP, createNewAccount, resendOTP, loginUser, userDetails, logoutUser, acceptInvite } from "./auth.controller.js";
-import { validateRequest } from "../../middlewares/validateRequest.middleware.js";
-import { signupSchema, verifyOtpSchema, resendOtpSchema, createAccountSchema, loginSchema } from "../../validations/auth.schema.js";
-import { authenticator } from "../../middlewares/authenticator.middleware.js";
+import { Router } from 'express';
+import {
+  createSignupRequest,
+  verifyEmail,
+  verifyOTP,
+  createNewAccount,
+  resendOTP,
+  loginUser,
+  userDetails,
+  logoutUser,
+  acceptInvite,
+} from './auth.controller.js';
+import { validateRequest } from '../../middlewares/validateRequest.middleware.js';
+import { signupSchema, verifyOtpSchema, resendOtpSchema, createAccountSchema, loginSchema } from '../../validations/auth.schema.js';
+import { authenticator } from '../../middlewares/authenticator.middleware.js';
 
 const router = Router();
 

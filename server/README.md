@@ -49,15 +49,16 @@ src/
 
 ---
 
-
 ## Installation & Setup
 
 1. **Install Dependencies:**
+
    ```bash
    npm install
    ```
 
 2. **Run Prisma Migrations:**
+
    ```bash
    npx prisma migrate dev
    ```

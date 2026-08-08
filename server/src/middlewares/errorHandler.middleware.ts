@@ -2,12 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import { ApiError } from '../validations/api-error.js';
 import multer from 'multer';
 
-export const errorHandler = (
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
+export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction): void => {
   console.error(err);
 
   if (err instanceof ApiError) {
@@ -35,6 +30,6 @@ export const errorHandler = (
   res.status(500).json({
     success: false,
     message: err.message || 'Internal server error',
-    stack: err.stack
+    stack: err.stack,
   });
 };

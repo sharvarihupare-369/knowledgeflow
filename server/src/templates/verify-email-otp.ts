@@ -1,15 +1,11 @@
 interface VerificationEmailTemplateProps {
-    name: string;
-    verificationLink: string;
-    otp: string;
+  name: string;
+  verificationLink: string;
+  otp: string;
 }
 
-export const verifylinkAndOTPTemplate = ({
-    name,
-    verificationLink,
-    otp,
-}: VerificationEmailTemplateProps): string => {
-    return `
+export const verifylinkAndOTPTemplate = ({ name, verificationLink, otp }: VerificationEmailTemplateProps): string => {
+  return `
 <!DOCTYPE html>
 <html>
 

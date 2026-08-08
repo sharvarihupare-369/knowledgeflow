@@ -9,8 +9,8 @@ export const semanticSearchSchema = yup.object({
 });
 
 export const createConversationSchema = yup.object({
-    body: yup.object({
-        collectionId: yup.string().required('Collection ID is required'),
-        title: yup.string().required('Title is required')
-    })
+  body: yup.object({
+    collectionId: yup.string().required('Collection ID is required'),
+    title: yup.string().required('Title is required'),
+  }),
 });

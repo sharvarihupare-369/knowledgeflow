@@ -1,50 +1,47 @@
-import { env } from "../config/env.js";
-import { transporter } from "../config/mail.js";
-import { otpEmailTemplate } from "../templates/otp-email.js";
-import { verificationEmailTemplate } from "../templates/verification-email.js";
-import { verifylinkAndOTPTemplate } from "../templates/verify-email-otp.js";
-import type { SendOtpAndVerifyLinkEmailPayload, SendOtpEmailPayload, sendVerificationEmailInterface } from "../types/auth.js";
-
+import { env } from '../config/env.js';
+import { transporter } from '../config/mail.js';
+import { otpEmailTemplate } from '../templates/otp-email.js';
+import { verificationEmailTemplate } from '../templates/verification-email.js';
+import { verifylinkAndOTPTemplate } from '../templates/verify-email-otp.js';
+import type { SendOtpAndVerifyLinkEmailPayload, SendOtpEmailPayload, sendVerificationEmailInterface } from '../types/auth.js';
 
 export const sendVerificationEmail = async ({ email, name, verificationLink }: sendVerificationEmailInterface) => {
-    const html = verificationEmailTemplate({ name, verificationLink })
-    const info = await transporter.sendMail({
-        from: env.EMAIL_USER,
-        to: email,
-        subject: "Verify your email",
-        html
-    })
-    return info;
-}
-
-
+  const html = verificationEmailTemplate({ name, verificationLink });
+  const info = await transporter.sendMail({
+    from: env.EMAIL_USER,
+    to: email,
+    subject: 'Verify your email',
+    html,
+  });
+  return info;
+};
 
 export const sendOtpEmail = async ({ email, name, otp }: SendOtpEmailPayload) => {
-    const html = otpEmailTemplate({ name, otp })
-    const info = await transporter.sendMail({
-        from: env.EMAIL_USER,
-        to: email,
-        subject: "Your Verification Code",
-        html
-    })
-    return info;
-}
+  const html = otpEmailTemplate({ name, otp });
+  const info = await transporter.sendMail({
+    from: env.EMAIL_USER,
+    to: email,
+    subject: 'Your Verification Code',
+    html,
+  });
+  return info;
+};
 
 // sendPasswordResetEmail(...)
 
 export const sendVerificationEmailAndOTP = async ({ email, name, verificationLink, otp }: SendOtpAndVerifyLinkEmailPayload) => {
-    const html = verifylinkAndOTPTemplate({ name, verificationLink, otp });
-    const info = await transporter.sendMail({
-        from: env.EMAIL_USER,
-        to: email,
-        subject: "Verify your email",
-        html
-    })
-    return info;
-} 
+  const html = verifylinkAndOTPTemplate({ name, verificationLink, otp });
+  const info = await transporter.sendMail({
+    from: env.EMAIL_USER,
+    to: email,
+    subject: 'Verify your email',
+    html,
+  });
+  return info;
+};
 
-export const sendApprovalEmail = async ({ email, name }: { email: string, name: string }) => {
-    const html = `
+export const sendApprovalEmail = async ({ email, name }: { email: string; name: string }) => {
+  const html = `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
             <h2>Account Approved</h2>
             <p>Hi ${name},</p>
@@ -53,17 +50,17 @@ export const sendApprovalEmail = async ({ email, name }: { email: string, name: 
             <p>Best regards,<br>The KnowledgeFlow AI Team</p>
         </div>
     `;
-    const info = await transporter.sendMail({
-        from: env.EMAIL_USER,
-        to: email,
-        subject: "Your KnowledgeFlow AI Account has been Approved",
-        html
-    })
-    return info;
-}
+  const info = await transporter.sendMail({
+    from: env.EMAIL_USER,
+    to: email,
+    subject: 'Your KnowledgeFlow AI Account has been Approved',
+    html,
+  });
+  return info;
+};
 
-export const sendRejectionEmail = async ({ email, name }: { email: string, name: string }) => {
-    const html = `
+export const sendRejectionEmail = async ({ email, name }: { email: string; name: string }) => {
+  const html = `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
             <h2>Account Request Rejected</h2>
             <p>Hi ${name},</p>
@@ -72,21 +69,31 @@ export const sendRejectionEmail = async ({ email, name }: { email: string, name:
             <p>Best regards,<br>The KnowledgeFlow AI Team</p>
         </div>
     `;
-    const info = await transporter.sendMail({
-        from: env.EMAIL_USER,
-        to: email,
-        subject: "KnowledgeFlow AI Account Request Status",
-        html
-    })
-    return info;
-}
+  const info = await transporter.sendMail({
+    from: env.EMAIL_USER,
+    to: email,
+    subject: 'KnowledgeFlow AI Account Request Status',
+    html,
+  });
+  return info;
+};
 
-export const sendInvitationEmail = async ({ email, token, inviterName, orgName }: { email: string, token: string, inviterName: string, orgName: string }) => {
-    // Determine base URL (e.g. http://localhost:3000 for local dev)
-    const baseUrl = env.CLIENT_URL || "http://localhost:3000";
-    const inviteLink = `${baseUrl}/accept-invite?token=${token}`;
-    
-    const html = `
+export const sendInvitationEmail = async ({
+  email,
+  token,
+  inviterName,
+  orgName,
+}: {
+  email: string;
+  token: string;
+  inviterName: string;
+  orgName: string;
+}) => {
+  // Determine base URL (e.g. http://localhost:3000 for local dev)
+  const baseUrl = env.FRONTEND_URL || 'http://localhost:3000';
+  const inviteLink = `${baseUrl}/accept-invite?token=${token}`;
+
+  const html = `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 8px;">
             <h2>You've been invited to join ${orgName} on KnowledgeFlow AI!</h2>
             <p>Hi there,</p>
@@ -101,11 +108,11 @@ export const sendInvitationEmail = async ({ email, token, inviterName, orgName }
             <p style="color: #999; font-size: 12px;">This invitation will expire in 7 days.</p>
         </div>
     `;
-    const info = await transporter.sendMail({
-        from: env.EMAIL_USER,
-        to: email,
-        subject: `Invitation to join ${orgName} on KnowledgeFlow AI`,
-        html
-    })
-    return info;
-}
+  const info = await transporter.sendMail({
+    from: env.EMAIL_USER,
+    to: email,
+    subject: `Invitation to join ${orgName} on KnowledgeFlow AI`,
+    html,
+  });
+  return info;
+};

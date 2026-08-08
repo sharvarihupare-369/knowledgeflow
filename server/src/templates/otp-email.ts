@@ -1,13 +1,10 @@
 interface OtpEmailTemplateProps {
-    name: string;
-    otp: string;
+  name: string;
+  otp: string;
 }
 
-export const otpEmailTemplate = ({
-    name,
-    otp,
-}: OtpEmailTemplateProps): string => {
-    return `
+export const otpEmailTemplate = ({ name, otp }: OtpEmailTemplateProps): string => {
+  return `
 <!DOCTYPE html>
 <html>
 

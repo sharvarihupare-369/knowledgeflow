@@ -1,11 +1,8 @@
-import type { VerificationEmailTemplateProps } from "../types/auth.js";
-import { env } from "../config/env.js";
+import type { VerificationEmailTemplateProps } from '../types/auth.js';
+import { env } from '../config/env.js';
 
-export const verificationEmailTemplate = ({
-    name,
-    verificationLink,
-}: VerificationEmailTemplateProps): string => {
-    return `
+export const verificationEmailTemplate = ({ name, verificationLink }: VerificationEmailTemplateProps): string => {
+  return `
     <!DOCTYPE html>
     <html>
       <head>
