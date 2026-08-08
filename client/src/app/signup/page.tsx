@@ -80,7 +80,7 @@ export default function SignupPage() {
           <Input
             id="companyName"
             type="text"
-            placeholder="Acme Inc."
+            placeholder="KnowledgeFlow AI"
             {...register("companyName")}
             error={errors.companyName?.message}
           />
