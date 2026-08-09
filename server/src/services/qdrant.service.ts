@@ -65,7 +65,7 @@ export const createCollectionIfNotExists = async (collectionName: string, vector
 export const searchVectors = async ({ vector, collectionId, limit = 5 }: { vector: number[]; collectionId: string; limit?: number }) => {
   console.log(`[AI LOG] Searching for answer by comparing vectors in Qdrant (collectionId: ${collectionId}, limit: ${limit})`);
   try {
-    const searchResult = await client.search('documents', {
+    const searchResult = await client.search('knowledgeflow_docs', {
       vector: vector,
       limit: limit,
       filter: {
