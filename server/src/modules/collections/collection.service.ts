@@ -18,7 +18,7 @@ export const editCollection = async (userId: string, id: string, payload: EditCo
 export const deleteCollection = async (userId: string, id: string) => {
   const deleted = await collectionRepository.deleteCollection(userId, id);
   // Cleanup vectors in Qdrant async (fire and forget or await)
-  await deleteVectorsByCollectionId('knowledgeflow_docs', id).catch(err => {
+  await deleteVectorsByCollectionId('knowledgeflow_docs_v2', id).catch(err => {
     console.error('Failed to cleanup qdrant vectors for collection', id, err);
   });
   return deleted;

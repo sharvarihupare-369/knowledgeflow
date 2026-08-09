@@ -31,7 +31,7 @@ export const deleteDocument = async (id: string, userId: string) => {
 
   // 2. Delete Qdrant vectors
   try {
-    await deleteVectorsByDocumentId('knowledgeflow_docs', document.id);
+    await deleteVectorsByDocumentId('knowledgeflow_docs_v2', document.id);
   } catch (error) {
     console.error(`Failed to delete Qdrant vectors for ${document.id}`, error);
   }

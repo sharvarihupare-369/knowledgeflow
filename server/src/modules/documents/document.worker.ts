@@ -16,7 +16,7 @@ export const processDocumentBackground = async (
     console.log(`[AI LOG] Starting AI pipeline (Document processing) for doc: ${documentId}`);
     if (isReindex) {
       try {
-        await deleteVectorsByDocumentId('knowledgeflow_docs', documentId);
+        await deleteVectorsByDocumentId('knowledgeflow_docs_v2', documentId);
       } catch (e) {
         console.error('Failed to delete Qdrant vectors during re-index', e);
       }
@@ -55,7 +55,7 @@ export const processDocumentBackground = async (
       const firstVector = await generateEmbedding(firstChunk.content);
       const vectorSize = firstVector.length;
 
-      await createCollectionIfNotExists('knowledgeflow_docs', vectorSize);
+      await createCollectionIfNotExists('knowledgeflow_docs_v2', vectorSize);
 
       const batchSize = 10;
       for (let i = 0; i < insertedChunks.length; i += batchSize) {
@@ -79,7 +79,7 @@ export const processDocumentBackground = async (
         });
 
         const batchPoints = await Promise.all(batchPromises);
-        await saveIntoQdrant('knowledgeflow_docs', batchPoints);
+        await saveIntoQdrant('knowledgeflow_docs_v2', batchPoints);
       }
     }
 
