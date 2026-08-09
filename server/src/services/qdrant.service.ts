@@ -44,6 +44,14 @@ export const createCollectionIfNotExists = async (collectionName: string, vector
         },
       });
       console.log(`Created Qdrant collection: ${collectionName}`);
+
+      // Create index on documentId for efficient deletion
+      await client.createPayloadIndex(collectionName, {
+        field_name: 'documentId',
+        field_schema: 'keyword',
+        wait: true,
+      });
+      console.log(`Created payload index for documentId on collection: ${collectionName}`);
     }
   } catch (error) {
     console.error('Failed to create Qdrant collection:', error);
