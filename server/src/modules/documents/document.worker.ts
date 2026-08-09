@@ -13,6 +13,7 @@ export const processDocumentBackground = async (
   isReindex: boolean = false,
 ) => {
   try {
+    console.log(`[AI LOG] Starting AI pipeline (Document processing) for doc: ${documentId}`);
     if (isReindex) {
       try {
         await deleteVectorsByDocumentId('documents', documentId);
@@ -45,14 +46,24 @@ export const processDocumentBackground = async (
         orderBy: { chunkIndex: 'asc' },
       });
 
-      await createCollectionIfNotExists('documents', 768);
+      const firstChunk = insertedChunks[0];
+      if (!firstChunk) {
+        throw new Error('No chunks found after insertion');
+      }
+
+      // Determine vector size from the first chunk
+      const firstVector = await generateEmbedding(firstChunk.content);
+      const vectorSize = firstVector.length;
+
+      await createCollectionIfNotExists('documents', vectorSize);
 
       const batchSize = 10;
       for (let i = 0; i < insertedChunks.length; i += batchSize) {
         const batch = insertedChunks.slice(i, i + batchSize);
 
-        const batchPromises = batch.map(async (chunk) => {
-          const vector = await generateEmbedding(chunk.content);
+        const batchPromises = batch.map(async (chunk, index) => {
+          // Optimization: Reuse firstVector for the very first chunk to save an API call
+          const vector = (i === 0 && index === 0) ? firstVector : await generateEmbedding(chunk.content);
           return {
             id: chunk.id,
             vector,
@@ -72,6 +83,7 @@ export const processDocumentBackground = async (
       }
     }
 
+    console.log(`[AI LOG] AI pipeline completed successfully for doc: ${documentId}. Document is READY.`);
     await documentService.updateDocumentStatus(documentId, 'READY');
   } catch (error) {
     console.error('Error processing document in background:', error);

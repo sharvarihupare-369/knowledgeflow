@@ -20,6 +20,7 @@ export const getOpenAI = () => {
  * @returns The generated answer string stream
  */
 export const generateAnswerStream = async (context: string[], question: string, conversationHistory?: { role: string; content: string }[]) => {
+  console.log(`[AI LOG] Generating answer for question: "${question}". Using context of size: ${context.length} chunks.`);
   const joinedContext = context.join('\n\n');
 
   let historyPrompt = '';

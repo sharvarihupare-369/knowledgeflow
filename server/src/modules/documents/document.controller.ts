@@ -21,6 +21,7 @@ export const uploadDocument = asyncHandler(async (req: Request, res: Response) =
   }
 
   try {
+    console.log(`[AI LOG] Received document upload request for file: ${req.file.originalname}`);
     const documentData = {
       title: title || req.file.originalname,
       originalName: req.file.originalname,
@@ -33,9 +34,10 @@ export const uploadDocument = asyncHandler(async (req: Request, res: Response) =
 
     const result = await documentService.uploadDocument(documentData, []);
 
+    console.log(`[AI LOG] Triggering background job for document ID: ${result.id}`);
     // Start background processing
     processDocumentBackground(result.id, result.filePath, result.collectionId, result.mimeType, false).catch((err) => {
-      console.error('Background job failed:', err);
+      console.error('[AI LOG] Background job failed abruptly:', err);
     });
 
     res.status(201).json({

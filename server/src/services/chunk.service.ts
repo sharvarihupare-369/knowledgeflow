@@ -6,6 +6,7 @@ export interface ChunkResult {
 }
 
 export const splitIntoChunks = (pages: PdfPage[], chunkSize = 1000, overlap = 200): ChunkResult[] => {
+  console.log(`[AI LOG] Starting chunking process for ${pages.length} pages. Settings: chunkSize=${chunkSize}, overlap=${overlap}`);
   if (overlap >= chunkSize) {
     throw new Error('Overlap must be smaller than chunk size.');
   }
@@ -28,5 +29,6 @@ export const splitIntoChunks = (pages: PdfPage[], chunkSize = 1000, overlap = 20
     }
   }
 
+  console.log(`[AI LOG] Completed chunking. Generated ${chunks.length} chunks.`);
   return chunks;
 };

@@ -27,8 +27,13 @@ export function useUploadDocument() {
       });
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['documents'] });
+      const collectionId = variables.get('collectionId') as string | undefined;
+      if (collectionId) {
+        queryClient.invalidateQueries({ queryKey: ['documents', collectionId] });
+        queryClient.invalidateQueries({ queryKey: ['collection', collectionId] });
+      }
     },
   });
 }

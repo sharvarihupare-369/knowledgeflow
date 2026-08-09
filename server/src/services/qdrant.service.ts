@@ -12,6 +12,7 @@ export interface QdrantPoint {
  * @param points The points to insert (id, vector, payload)
  */
 export const saveIntoQdrant = async (collectionName: string, points: QdrantPoint[]) => {
+  console.log(`[AI LOG] Storing ${points.length} vectors into Qdrant collection '${collectionName}'`);
   try {
     await client.upsert(collectionName, {
       wait: true,
@@ -54,6 +55,7 @@ export const createCollectionIfNotExists = async (collectionName: string, vector
  * Searches for similar vectors in Qdrant, filtered by collectionId
  */
 export const searchVectors = async ({ vector, collectionId, limit = 5 }: { vector: number[]; collectionId: string; limit?: number }) => {
+  console.log(`[AI LOG] Searching for answer by comparing vectors in Qdrant (collectionId: ${collectionId}, limit: ${limit})`);
   try {
     const searchResult = await client.search('documents', {
       vector: vector,

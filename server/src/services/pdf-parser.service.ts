@@ -8,6 +8,7 @@ export interface PdfPage {
 
 export async function extractText(filePath: string): Promise<PdfPage[]> {
   try {
+    console.log(`[AI LOG] Starting PDF text extraction for file: ${filePath}`);
     const dataBuffer = await fs.readFile(filePath);
     const render_page = function (pageData: any) {
       let render_options = {
@@ -44,6 +45,7 @@ export async function extractText(filePath: string): Promise<PdfPage[]> {
       }
     }
 
+    console.log(`[AI LOG] Successfully extracted ${pages.length} pages of text from PDF.`);
     return pages;
   } catch (error) {
     console.error('Error extracting text from PDF:', error);
