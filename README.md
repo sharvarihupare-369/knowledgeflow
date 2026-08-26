@@ -4,7 +4,6 @@ KnowledgeFlow is an AI-powered full-stack application that enables users to pars
 
 ## 🚀 Live Demo & Screenshots
 
-> **Note:** Add your live website images here.
 
 ![Home Page](./images/Dasboard.png)
 
